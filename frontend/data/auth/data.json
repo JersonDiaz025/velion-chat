@@ -1,0 +1,28 @@
+{
+  "common": {
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@email.com",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "••••••••"
+  },
+  "auth": {
+    "register": {
+      "title": "Crear cuenta",
+      "description": "Regístrate para acceder a todas las funciones de Velion.",
+      "submitButton": "Crear cuenta",
+      "loadingButton": "Creando cuenta...",
+      "confirmPasswordLabel": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "Repite tu contraseña",
+      "alreadyHaveAccount": "Iniciar sesión",
+      "footerActionText": "¿Ya tienes una cuenta?"
+    },
+    "login": {
+      "title": "Iniciar sesión",
+      "description": "Accede a tu cuenta para continuar.",
+      "submitButton": "Iniciar sesión",
+      "loadingButton": "Iniciando sesión...",
+      "alreadyHaveAccount": "Registrarse",
+      "footerActionText": "¿Todavía no tienes una cuenta?"
+    }
+  }
+}

@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/* =========================
+   🎨 DESIGN TOKENS (v4)
+========================= */
+@theme {
+  --color-on-surface-variant: #a5abb6;
+  --color-surface-dim: #0c0e11;
+  --color-tertiary-fixed-dim: #d1daf0;
+  --color-surface-container-high: #1b2027;
+  --color-inverse-surface: #f9f9fd;
+  --color-secondary-fixed-dim: #d1d4df;
+  --color-surface-variant: #20262f;
+  --color-tertiary: #f5f6ff;
+  --color-on-secondary-container: #bcbfc9;
+  --color-inverse-primary: #525f7a;
+  --color-secondary: #9a9ea8;
+  --color-secondary-container: #373b44;
+  --color-inverse-on-surface: #535559;
+  --color-on-surface: #e0e6f1;
+  --color-tertiary-container: #dfe8ff;
+  --color-secondary-dim: #9a9ea8;
+  --color-primary-fixed: #d7e2ff;
+  --color-on-error: #490106;
+  --color-error-dim: #bb5551;
+  --color-tertiary-dim: #d1daf0;
+  --color-surface-container-highest: #20262f;
+  --color-surface-container: #161a1f;
+  --color-primary-fixed-dim: #c7d4f4;
+  --color-primary-dim: #acb9d7;
+  --color-on-tertiary-container: #4c5568;
+  --color-secondary-fixed: #dfe2ed;
+  --color-surface: #0c0e11;
+  --color-on-secondary: #1c2028;
+  --color-on-error-container: #ff9993;
+  --color-tertiary-fixed: #dfe8ff;
+  --color-surface-container-low: #111418;
+  --color-surface-bright: #252d37;
+  --color-on-tertiary: #545e70;
+  --color-on-primary-container: #c3d0f0;
+  --color-outline: #707680;
+  --color-on-secondary-fixed: #3b3f48;
+  --color-error: #ee7d77;
+  --color-primary-container: #3a4760;
+  --color-background: #0c0e11;
+  --color-on-primary: #334059;
+  --color-on-tertiary-fixed-variant: #565f72;
+  --color-on-tertiary-fixed: #3a4355;
+  --color-on-primary-fixed-variant: #4f5c76;
+  --color-error-container: #7f2927;
+  --color-surface-tint: #b9c7e5;
+  --color-on-background: #e0e6f1;
+  --color-surface-container-lowest: #000000;
+  --color-on-secondary-fixed-variant: #585b64;
+  --color-outline-variant: #424851;
+  --color-on-primary-fixed: #333f58;
+  --color-primary: #b9c7e5;
+
+  /* Radius */
+  --radius-default: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
+  --radius-subtle: 4px;
+
+  /* Fonts */
+  --font-sans: "Manrope", sans-serif;
+}
+
+/* =========================
+   🧱 BASE
+========================= */
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans);
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* =========================
+   🎯 ICONOS
+========================= */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* =========================
+   🖱️ SCROLL
+========================= */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #373b44;
+  border-radius: 10px;
+}
