@@ -43,7 +43,6 @@ export class UsersController {
   }
 
   // --- ENDPOINTS DE AMIGOS ---
-
   @Post("friend-request/:id")
   sendRequest(@Request() req, @Param("id") receiverId: string) {
     return this.usersService.sendFriendRequestUser(

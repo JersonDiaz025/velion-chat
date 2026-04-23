@@ -168,8 +168,9 @@ export class UsersService {
   }
 
   // Obtener amigos del usuario
+  // En UsersService
   async getFriendsUsers(userId: number) {
-    const friends = await this.prisma.friend.findMany({
+    const friendships = await this.prisma.friend.findMany({
       where: {
         OR: [{ senderId: userId }, { receiverId: userId }],
         status: STATUS_FRIENDS_REQ.ACCEPTED,
@@ -195,36 +196,9 @@ export class UsersService {
         },
       },
     });
-    return friends;
+
+    return friendships.map((f) =>
+      f.senderId === userId ? f.receiver : f.sender,
+    );
   }
-
-  // Lógica para agregar amigos (Relación Many-to-Many definida en Prisma)
-  // async addFriend(userId: number, friendId: number) {
-  //   return this.prisma.user.update({
-  //     where: { id: userId },
-  //     // data: {
-  //     //   friends: {
-  //     //     connect: { id: friendId },
-  //     //   },
-  //     // },
-  //   });
-  // }
-
-  // async update(id: number, updateUserDto: UpdateUserDto) {
-  //   // Si actualiza password, hay que hashearla de nuevo
-  //   if (updateUserDto.password) {
-  //     updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
-  //   }
-
-  //   return this.prisma.user.update({
-  //     where: { id },
-  //     data: updateUserDto,
-  //   });
-  // }
-
-  // async remove(id: number) {
-  //   return this.prisma.user.delete({
-  //     where: { id },
-  //   });
-  // }
 }

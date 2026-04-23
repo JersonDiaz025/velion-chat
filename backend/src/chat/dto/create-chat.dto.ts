@@ -1,1 +1,7 @@
-export class CreateChatDto {}
+export class CreateChatDto {
+  userId!: number;
+  targetId!: number;
+  isGroup?: boolean;
+  chatId!: number;
+  name?: string;
+}

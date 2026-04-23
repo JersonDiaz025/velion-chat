@@ -12,7 +12,7 @@ import { PrismaService } from "./prisma/prisma.service";
       isGlobal: true,
     }),
     UsersModule,
-    // MessagesModule,
+    MessagesModule,
     AuthModule,
     ChatModule,
   ],

@@ -7,7 +7,7 @@ export class CreateMessageDto {
 
   @IsNumber()
   @IsNotEmpty()
-  userId!: number;
+  senderId!: number;
 
   @IsNumber()
   @IsNotEmpty()
