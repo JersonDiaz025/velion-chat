@@ -66,8 +66,10 @@ export class UsersController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get("me/friends")
   getMyFriends(@Request() req) {
+    const userId = req.user.sub || req.user.userId;
     return this.usersService.getFriendsUsers(req.user.userId);
   }
 }
