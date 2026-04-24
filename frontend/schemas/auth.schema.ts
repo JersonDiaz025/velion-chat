@@ -16,5 +16,5 @@ export const authSchema = z.object({
   password: z
     .string()
     .min(1, "La contraseña es requerida")
-    .min(6, "La contraseña debe tener al menos 6 caracteres"),
+    // .min(6, "La contraseña debe tener al menos 6 caracteres"),
 });
