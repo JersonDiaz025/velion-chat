@@ -3,7 +3,7 @@ import { JwtService } from "@nestjs/jwt";
 import { WsException } from "@nestjs/websockets";
 
 @Injectable()
-export class WsJwtGuard implements CanActivate {
+export class JwtGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

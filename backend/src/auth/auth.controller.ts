@@ -14,6 +14,7 @@ import { UsersService } from "../users/users.service";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { ROUTES } from "../constants/routes";
+import RefreshTokenDto from "./dto/refresh.dto";
 
 @Controller(ROUTES.AUTH)
 export class AuthController {
@@ -28,11 +29,17 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LocalAuthGuard)
+  // @UseGuards(LocalAuthGuard)
   @Post(ROUTES.LOGIN)
-  login(@Request() req) {
-    return this.authService.login(req.user);
+  login(@Body() body) {
+    return this.authService.login(body);
   }
+
+  // @Post("refresh")
+  // @HttpCode(HttpStatus.OK)
+  // async refresh(@Body() body: RefreshTokenDto) {
+  //   return this.authService.refreshToken(body);
+  // }
 
   @UseGuards(JwtAuthGuard)
   @Get(ROUTES.PROFILE)

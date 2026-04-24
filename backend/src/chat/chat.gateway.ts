@@ -13,7 +13,7 @@ import { Server, Socket } from "socket.io";
 import { ChatService } from "./chat.service";
 import { UserEntity } from "../auth/types/user";
 import { CreateChatDto } from "./dto/create-chat.dto";
-import { WsJwtGuard } from "../auth/guards/ws-jwt.guard";
+import { JwtGuard } from "../auth/guards/ws-jwt.guard";
 import { MessagesService } from "../messages/messages.service";
 import { CreateMessageDto } from "../messages/dto/create-message.dto";
 import { JwtService } from "@nestjs/jwt";
@@ -30,7 +30,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly messagesService: MessagesService,
   ) {}
 
-  async handleConnection(client: any) {
+  async handleConnection(client: Socket & { user?: UserEntity }) {
     try {
       const token =
         client.handshake.auth?.token?.split(" ")[1] ||
@@ -70,7 +70,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // Create a new chat
-  @UseGuards(WsJwtGuard)
+  @UseGuards(JwtGuard)
   @SubscribeMessage("createChat")
   async create(
     @MessageBody() createChatDto: CreateChatDto,
@@ -93,7 +93,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // Send a message to a chat
-  @UseGuards(WsJwtGuard)
+  @UseGuards(JwtGuard)
   @SubscribeMessage("sendMessage")
   async handleSendMessage(
     @MessageBody() data: CreateMessageDto,
@@ -130,7 +130,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { event: "joined", room: `chat_${data.chatId}` };
   }
 
-  @UseGuards(WsJwtGuard)
+  @UseGuards(JwtGuard)
   @SubscribeMessage("typing")
   handleTyping(
     @MessageBody() data: { chatId: number; isTyping: boolean },

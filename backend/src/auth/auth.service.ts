@@ -19,18 +19,18 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  login(user: UserEntity) {
-    const payload: PayloadEntity = { username: user.username, sub: user.id };
+  async login(userBody: UserEntity) {
+    const userData = await this.usersService.findOneUser(userBody.email);
     return {
-      token: this.jwtService.sign(payload),
+      token: this.jwtService.sign(userBody),
+      message: `Bienvenido ${userData?.name || userData?.username}`,
       user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
+        name: userData?.name,
+        username: userData?.username,
+        email: userData?.email,
         avatar: {
-          initials: user.initials,
-          color: user.avatarColor,
+          initials: userData?.initials,
+          color: userData?.avatarColor,
         },
       },
     };
@@ -46,22 +46,31 @@ export class AuthService {
     }
   }
 
-  async refreshToken(body: RefreshTokenDto) {
-    try {
-      const payload: PayloadFull = await this.jwtService.verifyAsync(
-        body.refreshToken,
-      );
-      const { exp, iat, ...result } = payload;
-      const refreshToken = await this.jwtService.signAsync(result, {
-        secret: JWT_SECRET,
-        expiresIn: JWT_EXPIRES_IN,
-      });
-      return { refreshToken };
-    } catch (error) {
-      if (error instanceof Error)
-        throw new InternalServerErrorException(error.message);
-    }
-  }
+  // async refreshToken(body: RefreshTokenDto) {
+  //   try {
+  //     const payload: PayloadFull = await this.jwtService.verifyAsync(
+  //       body.refreshToken,
+  //     );
+
+  //     const user = await this.usersService.getUserById(payload.sub);
+
+  //     if (!user || user.refreshToken !== body.refreshToken) {
+  //       throw new UnauthorizedException("Invalid refresh token");
+  //     }
+
+  //     const newAccessToken = await this.jwtService.signAsync(
+  //       { sub: user.id, username: user.username },
+  //       {
+  //         secret: JWT_SECRET,
+  //         expiresIn: "15m",
+  //       },
+  //     );
+
+  //     return { token: newAccessToken };
+  //   } catch (error) {
+  //     throw new UnauthorizedException("Invalid refresh token");
+  //   }
+  // }
 
   async validateUser(body: CreateUserDto) {
     try {
