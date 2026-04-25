@@ -14,7 +14,11 @@
       "confirmPasswordLabel": "Confirmar contraseña",
       "confirmPasswordPlaceholder": "Repite tu contraseña",
       "alreadyHaveAccount": "Iniciar sesión",
-      "footerActionText": "¿Ya tienes una cuenta?"
+      "footerActionText": "¿Ya tienes una cuenta?",
+      "nameLabel": "Nombre completo",
+      "namePlaceholder": "Tu nombre",
+      "usernameLabel": "Nombre de usuario",
+      "usernamePlaceholder": "alex14"
     },
     "login": {
       "title": "Iniciar sesión",

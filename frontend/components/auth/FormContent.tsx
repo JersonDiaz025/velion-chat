@@ -9,6 +9,7 @@ import { BaseFormTexts, FormProps } from '@/types/form.types';
 import { FORM_TYPES } from '@/constants/form-types.constants';
 
 export default function FormContent<T extends BaseFormTexts>( {
+  isRegister = false,
   action,
   texts,
 }: FormProps<T> ) {
@@ -17,10 +18,31 @@ export default function FormContent<T extends BaseFormTexts>( {
 
   return (
     <form action={formAction} className="space-y-6">
+      {isRegister && (
+        <>
+          <FormField
+            label={texts?.nameLabel ?? ""}
+            name={FORM_TYPES.NAME}
+            type={FORM_TYPES.TEXT}
+            defaultValue={state?.data?.name ?? ""}
+            errorLabel={state?.errors?.name?.[ 0 ]}
+            placeholder={texts.namePlaceholder}
+          />
+          <FormField
+            type={FORM_TYPES.TEXT}
+            name={FORM_TYPES.USERNAME}
+            defaultValue={state?.data?.username}
+            label={texts?.usernameLabel ?? ""}
+            errorLabel={state?.errors?.username?.[ 0 ]}
+            placeholder={texts.usernamePlaceholder}
+          />
+        </>
+      )}
       <FormField
         label={texts.emailLabel}
         name={FORM_TYPES.EMAIL}
         type={FORM_TYPES.EMAIL}
+        defaultValue={state?.data?.email}
         errorLabel={state?.errors?.email?.[ 0 ]}
         placeholder={texts.emailPlaceholder}
       />

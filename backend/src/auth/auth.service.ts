@@ -16,7 +16,7 @@ import { JWT_EXPIRES_IN, JWT_SECRET } from "../constants/auth";
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
+    private jwtService: JwtService
   ) {}
 
   async login(userBody: UserEntity) {
@@ -74,20 +74,24 @@ export class AuthService {
 
   async validateUser(body: CreateUserDto) {
     try {
-      const user = await this.usersService.findOneUser(
-        body.username,
-        body.email,
-      );
+      const user = await this.usersService.findOneUser(body.email);
 
       const isMatch = await bcrypt.compare(body.password, user?.password ?? "");
-      if (user && isMatch) {
-        const { password, ...result } = user;
-        return result;
+      if (!isMatch || !user) {
+        throw new UnauthorizedException("Email o contraseña incorrectos.");
       }
-      throw new UnauthorizedException("Credenciales inválidas");
+
+      if (!user || !isMatch) {
+        throw new UnauthorizedException("Email o contraseña incorrectos");
+      }
+
+      const { password, ...result } = user;
+      return result;
     } catch (error) {
-      if (error instanceof Error)
-        throw new InternalServerErrorException(error.message);
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new InternalServerErrorException("Error interno en la validación");
     }
   }
 }

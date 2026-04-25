@@ -1,46 +1,46 @@
 "use server";
 
-import { createSession } from "@/lib/session.lib";
-import { INITIAL_FORM_STATE, authSchema } from "@/schemas/auth.schema";
-import { AuthService } from "@/services/auth.service";
-import { FormState } from "@/types/form.types";
 import { redirect } from "next/navigation";
-
-
-
-// ==================== REGISTER ====================
+import { FormState } from "@/types/form.types";
+import { createSession } from "@/lib/session.lib";
+import { AuthService } from "@/services/auth.service";
+import { ROUTES } from "@/constants/routes.constants";
+import { ApiError, RegisterDto } from "@/types/auth.types";
+import { INITIAL_FORM_STATE, authSchema } from "@/schemas/auth.schema";
 
 export async function registerAction(
   prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
+  let isSuccessful = false;
   const data = Object.fromEntries(formData);
-
   const result = authSchema.safeParse(data);
 
   if (!result.success) {
     return {
       ...INITIAL_FORM_STATE,
-      errors: result.error.flatten().fieldErrors,
-      message: "Errores en el formulario",
+      data: data as Record<string, string>,
+      errors: result?.error.flatten().fieldErrors,
     };
   }
-
-  const { email, password } = result.data;
 
   try {
-    // 🔌 backend call (NestJS)
-    console.log("REGISTER:", email, password);
-
-    return {
-      ...INITIAL_FORM_STATE,
-      success: true,
-      message: "Cuenta creada correctamente",
-    };
+    const res = await AuthService.register(result.data as RegisterDto);
+    await createSession(res.token);
+    isSuccessful = true;
+    console.log("Registro", res);
   } catch (error) {
+    const apiError = error as ApiError;
     return {
       ...INITIAL_FORM_STATE,
-      message: "Error en registro",
+      data: data as Record<string, string>,
+      message: apiError.message as string,
     };
   }
+
+  if (isSuccessful) {
+    redirect(ROUTES.LOGIN);
+  }
+
+  return INITIAL_FORM_STATE;
 }

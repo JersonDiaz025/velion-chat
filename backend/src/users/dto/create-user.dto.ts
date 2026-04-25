@@ -21,7 +21,7 @@ export class CreateUserDto {
   @ApiProperty()
   @Transform(({ value }) => value.trim())
   @IsString()
-  // @MinLength(6)
+  @MinLength(6)
   @IsNotEmpty()
   password!: string;
 

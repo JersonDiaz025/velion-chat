@@ -18,10 +18,9 @@ const AuthLayout = ( {
   return (
     <div className="bg-[#0c0e11] text-[#e0e6f1] min-h-screen flex items-center justify-center p-6 relative overflow-hidden font-sans">
       <main className="z-10 w-full max-w-md">
-        {/* Header de Marca */}
-        <div className="text-center mb-10">
+        {/* <div className="text-center mb-10">
           <h1 className="text-3xl font-extrabold tracking-tighter text-[#e0e6f1] mb-2">{title}</h1>
-        </div>
+        </div> */}
 
         {/* Card Principal */}
         <div className="bg-[#111418] p-10 rounded-xl shadow-2xl relative overflow-hidden border border-[#424851]/10">

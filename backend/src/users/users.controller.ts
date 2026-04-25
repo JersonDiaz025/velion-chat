@@ -47,7 +47,7 @@ export class UsersController {
   sendRequest(@Request() req, @Param("id") receiverId: string) {
     return this.usersService.sendFriendRequestUser(
       req.user.userId,
-      +receiverId,
+      +receiverId
     );
   }
 
@@ -56,13 +56,13 @@ export class UsersController {
   async updateFriendStatus(
     @Request() req,
     @Param("senderId", ParseIntPipe) senderId: number,
-    @Body("status") status: FriendStatus,
+    @Body("status") status: FriendStatus
   ) {
     // El receiverId es el usuario logueado (quien acepta/rechaza)
     return this.usersService.updateFriendStatusUser(
       senderId,
       req.user.userId,
-      status,
+      status
     );
   }
 

@@ -1,5 +1,6 @@
 // components/layout/ChatList.tsx
 
+import { ROUTES } from "@/constants/routes.constants";
 import Link from "next/link";
 
 export default function ChatList() {
@@ -17,11 +18,11 @@ export default function ChatList() {
 
       <div className="flex-1 overflow-y-auto px-3 space-y-2">
 
-        <Link href="/messages/1" className="p-3 bg-surface-container-high rounded-xl block">
+        <Link href={ROUTES.MESSAGES.CHAT( 1 )} className="p-3 bg-surface-container-high rounded-xl block">
           Evelyn Vance
         </Link>
 
-        <Link href="/messages/2" className="p-3 hover:bg-surface-container rounded-xl block">
+        <Link href={ROUTES.MESSAGES.CHAT( 2 )} className="p-3 hover:bg-surface-container rounded-xl block">
           Julian Thorne
         </Link>
 

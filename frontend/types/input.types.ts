@@ -1,3 +1,6 @@
-import React from 'react';
+import { InputHTMLAttributes } from "react";
 
-export type InputProps = React.InputHTMLAttributes<HTMLInputElement>
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  hasError?: boolean;
+  className?: string;
+}

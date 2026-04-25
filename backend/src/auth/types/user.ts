@@ -4,7 +4,6 @@ export class UserEntity {
   id!: number;
   name!: string;
   username!: string;
-
   @Column({ nullable: true })
   refreshTokenHash?: string;
   refreshToken!: string;

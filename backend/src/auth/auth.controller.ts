@@ -20,7 +20,7 @@ import RefreshTokenDto from "./dto/refresh.dto";
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private userService: UsersService,
+    private userService: UsersService
   ) {}
 
   @Post(ROUTES.REGISTER)
@@ -29,7 +29,7 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(LocalAuthGuard)
+  @UseGuards(LocalAuthGuard)
   @Post(ROUTES.LOGIN)
   login(@Body() body) {
     return this.authService.login(body);

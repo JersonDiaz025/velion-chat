@@ -20,17 +20,17 @@ export class UsersService {
   async createUser(createUserDto: CreateUserDto) {
     try {
       const existingUser = await this.findOneUser(
-        createUserDto.username,
         createUserDto.email,
+        createUserDto.username
       );
 
       if (existingUser) {
-        throw new BadRequestException("El usuario o email ya existe");
+        throw new BadRequestException("El usuario o email ya existe.");
       }
 
       const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
       const avatarData = getAvatarData(
-        createUserDto.name || createUserDto.username,
+        createUserDto.name || createUserDto.username
       );
 
       const newUser = await this.prisma.user.create({
@@ -45,7 +45,9 @@ export class UsersService {
       return {
         id: newUser.id,
         name: newUser.name,
-        message: `Hola ${newUser.name ? newUser.name : newUser.username}, has sido registrado exitosamente.`,
+        message: `Hola ${
+          newUser.name ? newUser.name : newUser.username
+        }, has sido registrado exitosamente.`,
       };
     } catch (error) {
       if (error instanceof Error) {
@@ -157,7 +159,7 @@ export class UsersService {
   async updateFriendStatusUser(
     senderId: number,
     receiverId: number,
-    status: FriendStatus,
+    status: FriendStatus
   ) {
     return this.prisma.friend.update({
       where: {
@@ -198,7 +200,7 @@ export class UsersService {
     });
 
     return friendships.map((f) =>
-      f.senderId === userId ? f.receiver : f.sender,
+      f.senderId === userId ? f.receiver : f.sender
     );
   }
 }

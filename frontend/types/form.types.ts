@@ -1,6 +1,11 @@
 export type BaseFormTexts = {
   emailLabel: string;
+  defaultValue?: string;
   emailPlaceholder: string;
+  nameLabel?: string | undefined;
+  namePlaceholder?: string | undefined;
+  usernameLabel?: string | undefined;
+  usernamePlaceholder?: string;
   passwordLabel: string;
   passwordPlaceholder: string;
   submitButton: string;
@@ -17,11 +22,14 @@ export type LoginFormTexts = BaseFormTexts;
 export type FormState = {
   errors?: {
     email?: string[];
+    name?: string[];
+    username?: string[];
     password?: string[];
     confirmPassword?: string[];
   };
   message?: string;
   success?: boolean;
+  data?: Record<string, string>;
 };
 
 export type FormAction = (
@@ -31,6 +39,7 @@ export type FormAction = (
 
 export interface FormProps<T extends BaseFormTexts> {
   texts: T;
+  isRegister?: boolean;
   action: FormAction;
 }
 
