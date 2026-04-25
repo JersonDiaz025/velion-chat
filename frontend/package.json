@@ -13,6 +13,7 @@
     "autoprefixer": "^10.5.0",
     "axios": "^1.15.2",
     "next": "16.2.4",
+    "nextjs-toast-notify": "^1.61.0",
     "postcss": "^8.5.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",

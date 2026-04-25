@@ -20,6 +20,9 @@ importers:
       next:
         specifier: 16.2.4
         version: 16.2.4(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      nextjs-toast-notify:
+        specifier: ^1.61.0
+        version: 1.61.0
       postcss:
         specifier: ^8.5.10
         version: 8.5.10
@@ -1618,6 +1621,9 @@ packages:
         optional: true
       sass:
         optional: true
+
+  nextjs-toast-notify@1.61.0:
+    resolution: {integrity: sha512-GNQz4d76jQ2qOmqae0hbl9RvmHVppqVYBpMfUbwNdMfXHFgtkjoWN8kutOALSUJ4KjwU97P5eCgQt6YPb6X6Lg==}
 
   node-exports-info@1.6.0:
     resolution: {integrity: sha512-pyFS63ptit/P5WqUkt+UUfe+4oevH+bFeIiPPdfb0pFeYEu/1ELnJu5l+5EcTKYL5M7zaAa7S8ddywgXypqKCw==}
@@ -3647,6 +3653,8 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+
+  nextjs-toast-notify@1.61.0: {}
 
   node-exports-info@1.6.0:
     dependencies:

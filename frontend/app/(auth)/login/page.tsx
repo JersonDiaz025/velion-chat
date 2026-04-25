@@ -6,7 +6,6 @@ import { loginAction } from "@/app/actions";
 import Title from "@/components/shared/Title";
 
 export default function LoginPage() {
-
   const commonTexts = data.common;
   const loginTexts = data.auth.login;
 
