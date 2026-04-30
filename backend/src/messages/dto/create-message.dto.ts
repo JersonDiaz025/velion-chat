@@ -10,10 +10,10 @@ export class CreateMessageDto {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  senderId!: number;
+  senderId!: string;
 
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  chatId!: number;
+  chatId!: string;
 }

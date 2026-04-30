@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function ChatList() {
   return (
-    <section className="w-80 bg-surface-container-low flex flex-col">
+    <section className="w-fit bg-surface-container-low flex h-full flex-col">
 
       <div className="p-6">
         <h1 className="text-xl font-bold mb-6">Messages</h1>

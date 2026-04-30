@@ -1,6 +1,6 @@
-// app/(dashboard)/page.tsx
 import { redirect } from "next/navigation";
+import { ROUTES } from "@/constants/routes.constants";
 
 export default function Page() {
-  redirect("/messages");
+  redirect( ROUTES.MESSAGES.ROOT );
 }

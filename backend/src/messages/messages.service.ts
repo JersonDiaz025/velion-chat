@@ -47,7 +47,7 @@ export class MessagesService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const message = await this.prisma.message.findUnique({
       where: { id },
       include: {
@@ -61,7 +61,7 @@ export class MessagesService {
     return message;
   }
 
-  async findByChat(chatId: number) {
+  async findByChat(chatId: string) {
     return await this.prisma.message.findMany({
       where: { chatId },
       orderBy: { createdAt: "asc" },
@@ -79,7 +79,7 @@ export class MessagesService {
     });
   }
 
-  async update(id: number, updateMessageDto: UpdateMessageDto) {
+  async update(id: string, updateMessageDto: UpdateMessageDto) {
     try {
       return await this.prisma.message.update({
         where: { id },
@@ -90,7 +90,7 @@ export class MessagesService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     try {
       return await this.prisma.message.delete({
         where: { id },

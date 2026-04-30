@@ -1,10 +1,10 @@
 export class PayloadEntity {
-  id!: number;
+  sub!: string;
   email!: string;
 }
 
 export class PayloadFull {
-  sub!: number;
+  sub!: string;
   email!: string;
   username!: string;
   iat!: number;

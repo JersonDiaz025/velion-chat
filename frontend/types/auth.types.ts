@@ -3,6 +3,19 @@ export interface LoginDto {
   password: string;
 }
 
+type Avatar = {
+  initials: string;
+  color: string;
+};
+
+export type AuthState = {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  setUser: (user: User | null) => void;
+  logout: () => void;
+};
+
 export interface RegisterDto {
   name: string;
   username: string;
@@ -15,10 +28,7 @@ export interface User {
   name: string;
   username: string;
   email: string;
-  avatar: {
-    initials: string | null;
-    color: string | null;
-  };
+  avatar: Avatar;
 }
 
 export interface AuthResponse {

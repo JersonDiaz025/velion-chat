@@ -4,5 +4,5 @@ import { ApiProperty } from "@nestjs/swagger/dist/decorators/api-property.decora
 
 export class UpdateChatDto extends PartialType(CreateChatDto) {
   @ApiProperty()
-  id!: number;
+  id!: string;
 }

@@ -2,16 +2,16 @@ import { ApiProperty } from "@nestjs/swagger/dist/decorators/api-property.decora
 
 export class CreateChatDto {
   @ApiProperty()
-  userId!: number;
+  userId!: string;
 
   @ApiProperty()
-  targetId!: number;
+  targetId!: string;
 
   @ApiProperty()
   isGroup?: boolean;
 
   @ApiProperty()
-  chatId!: number;
+  chatId!: string;
 
   @ApiProperty()
   name?: string;

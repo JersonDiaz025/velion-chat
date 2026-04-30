@@ -1,0 +1,9 @@
+{
+    "title": "Usuarios",
+    "subtitle": "Lista de usuarios que interactuan con velion",
+    "searchPlaceholder": "Buscar usurios...",
+    "startsPersons": {
+        "title": "Usuarios destacados",
+        "subtitle": "Accede rápidamente a las personas con las que más interactúas"
+    }
+}

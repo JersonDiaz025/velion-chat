@@ -1,51 +1,50 @@
-import axios, {
-  AxiosError,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
-} from "axios";
-import { NestErrorResponse, ApiError } from "@/types/api.types";
+import { notify } from './notifications';
+import axios, { AxiosResponse } from 'axios';
+import { getCookie } from 'cookies-next';
+import { ApiError } from '@/types/api.types';
+import { SESSION_COOKIE_NAME } from '@/constants/session.constants';
+import { logout } from '@/app/(auth)/logout/route';
 
-// Instancia de Axios
+const isServer = typeof window === 'undefined';
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
+  withCredentials: true,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
-/**
- * Interceptor para peticiones:
- * Aquí podrías añadir lógica si necesitas inyectar algo
- * dinámicamente antes de enviar la petición.
- */
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    return config;
-  },
-  (error: AxiosError) => Promise.reject(error)
-);
+api.interceptors.request.use((config) => {
+  if (!isServer) {
+    const token = getCookie(SESSION_COOKIE_NAME);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
 
-/**
- * Interceptor para respuestas:
- * Normaliza los errores de NestJS para que no tengas que
- * hacer .response.data en cada try/catch.
- */
 api.interceptors.response.use(
   <T>(response: AxiosResponse<T>): T => response.data,
-  (error: AxiosError<NestErrorResponse>) => {
-    const response = error.response;
+  async (error: ApiError) => {
+    const status = error.response?.data?.statusCode;
+    const message = error.response?.data?.message;
 
-    const customError: ApiError = {
-      message: Array.isArray(response?.data?.message)
-        ? response?.data.message.join(", ")
-        : response?.data?.message || "Error desconocido",
-      status: response?.status,
-      errors: Array.isArray(response?.data?.message)
-        ? response?.data.message
-        : undefined,
-    };
+    if (status === 401 || message === 'SESSION_NOT_FOUND') {
+      if (typeof window !== 'undefined') {
+        notify.error('Tu sesión ha expirado. Por favor, ingresa tus credenciales nuevamente.', {
+          title: 'Sesión Expirada',
+          duration: 6000,
+          sonido: true,
+        });
+        setTimeout(async () => {
+          await logout();
+        }, 1500);
+      }
+    }
 
-    return Promise.reject(customError);
+    return Promise.reject(error);
   }
 );
 

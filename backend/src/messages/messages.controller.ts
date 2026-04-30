@@ -30,25 +30,25 @@ export class MessagesController {
   }
 
   @Get("chat/:chatId")
-  findByChat(@Param("chatId", ParseIntPipe) chatId: number) {
+  findByChat(@Param("chatId", ParseIntPipe) chatId: string) {
     return this.messagesService.findByChat(chatId);
   }
 
   @Get(":id")
-  findOne(@Param("id", ParseIntPipe) id: number) {
+  findOne(@Param("id", ParseIntPipe) id: string) {
     return this.messagesService.findOne(id);
   }
 
   @Patch(":id")
   update(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id", ParseIntPipe) id: string,
     @Body() updateMessageDto: UpdateMessageDto,
   ) {
     return this.messagesService.update(id, updateMessageDto);
   }
 
   @Delete(":id")
-  remove(@Param("id", ParseIntPipe) id: number) {
+  remove(@Param("id", ParseIntPipe) id: string) {
     return this.messagesService.remove(id);
   }
 }

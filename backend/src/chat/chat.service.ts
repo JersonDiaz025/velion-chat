@@ -59,7 +59,7 @@ export class ChatService {
   }
 
   // Obtener todos los chats de un usuario específico
-  async findAllUserChats(userId: number) {
+  async findAllUserChats(userId: string) {
     return this.prisma.chat.findMany({
       where: {
         participants: { some: { userId } },
@@ -86,7 +86,7 @@ export class ChatService {
   }
 
   // Chat limitados, primera carga
-  async findByChat(chatId: number, limit = 50) {
+  async findByChat(chatId: string, limit = 50) {
     return this.prisma.message.findMany({
       where: { chatId },
       take: limit,
@@ -104,7 +104,7 @@ export class ChatService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     return this.prisma.chat.findUnique({
       where: { id },
       include: {

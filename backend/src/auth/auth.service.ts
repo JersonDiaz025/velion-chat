@@ -1,16 +1,14 @@
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
-} from "@nestjs/common";
-import * as bcrypt from "bcrypt";
-import { JwtService } from "@nestjs/jwt";
-import { UsersService } from "../users/users.service";
-import { CreateUserDto } from "../users/dto/create-user.dto";
-import { UserEntity } from "./types/user";
-import { PayloadEntity, PayloadFull } from "./types/payload";
-import RefreshTokenDto from "./dto/refresh.dto";
-import { JWT_EXPIRES_IN, JWT_SECRET } from "../constants/auth";
+} from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { UserEntity } from './types/user';
 
 @Injectable()
 export class AuthService {
@@ -20,19 +18,13 @@ export class AuthService {
   ) {}
 
   async login(userBody: UserEntity) {
-    const userData = await this.usersService.findOneUser(userBody.email);
+    const userData = await this.usersService.findOneUser(userBody?.email);
     return {
-      token: this.jwtService.sign(userBody),
-      message: `Bienvenido ${userData?.name || userData?.username}`,
-      user: {
-        name: userData?.name,
-        username: userData?.username,
+      token: this.jwtService.sign({
+        sub: userData?.id,
         email: userData?.email,
-        avatar: {
-          initials: userData?.initials,
-          color: userData?.avatarColor,
-        },
-      },
+      }),
+      message: `Bienvenido ${userData?.name || userData?.username}`,
     };
   }
 
@@ -76,22 +68,22 @@ export class AuthService {
     try {
       const user = await this.usersService.findOneUser(body.email);
 
-      const isMatch = await bcrypt.compare(body.password, user?.password ?? "");
-      if (!isMatch || !user) {
-        throw new UnauthorizedException("Email o contraseña incorrectos.");
-      }
+      const isMatch = await bcrypt.compare(body.password, user?.password ?? '');
 
-      if (!user || !isMatch) {
-        throw new UnauthorizedException("Email o contraseña incorrectos");
+      if (user?.deletedAt) {
+        // Lanzamos 403 Forbidden en lugar de 401 para diferenciar en el frontend
+        throw new ForbiddenException('Esta cuenta ha sido desactivada.');
+      }
+      if (!isMatch || !user) {
+        throw new UnauthorizedException('Credenciales incorrectas o cuenta desactivada.');
       }
 
       const { password, ...result } = user;
       return result;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
-        throw error;
+        // throw new UnauthorizedException(error.getResponse());
       }
-      throw new InternalServerErrorException("Error interno en la validación");
     }
   }
 }

@@ -7,34 +7,35 @@ import {
   WsException,
   OnGatewayConnection,
   OnGatewayDisconnect,
-} from "@nestjs/websockets";
-import { UseGuards } from "@nestjs/common";
-import { Server, Socket } from "socket.io";
-import { ChatService } from "./chat.service";
-import { UserEntity } from "../auth/types/user";
-import { CreateChatDto } from "./dto/create-chat.dto";
-import { JwtGuard } from "../auth/guards/ws-jwt.guard";
-import { MessagesService } from "../messages/messages.service";
-import { CreateMessageDto } from "../messages/dto/create-message.dto";
-import { JwtService } from "@nestjs/jwt";
+} from '@nestjs/websockets';
+import { UseGuards } from '@nestjs/common';
+import { Server, Socket } from 'socket.io';
+import { ChatService } from './chat.service';
+import { UserEntity } from '../auth/types/user';
+import { CreateChatDto } from './dto/create-chat.dto';
+import { JwtGuard } from '../auth/guards/ws-jwt.guard';
+import { MessagesService } from '../messages/messages.service';
+import { CreateMessageDto } from '../messages/dto/create-message.dto';
+import { JwtService } from '@nestjs/jwt';
+import { PresenceService } from '../presence/presence.service';
 
-@WebSocketGateway({ cors: { origin: "*" } })
+@WebSocketGateway({ cors: { origin: '*' } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server!: Server;
-  private activeUsers = new Map<number, string>();
 
   constructor(
     private readonly chatService: ChatService,
     private readonly jwtService: JwtService,
-    private readonly messagesService: MessagesService,
+    private readonly presenceService: PresenceService,
+    private readonly messagesService: MessagesService
   ) {}
 
   async handleConnection(client: Socket & { user?: UserEntity }) {
     try {
       const token =
-        client.handshake.auth?.token?.split(" ")[1] ||
-        client.handshake.headers?.authorization?.split(" ")[1];
+        client.handshake.auth?.token?.split(' ')[1] ||
+        client.handshake.headers?.authorization?.split(' ')[1];
 
       if (!token) {
         client.disconnect();
@@ -45,15 +46,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.user = payload; // Inyectamos el usuario en el socket
 
       // 3. Guardar en nuestro mapa de usuarios activos
-      this.activeUsers.set(payload.sub, client.id);
+      this.presenceService.setOnline(payload.sub, client.id);
 
       // 4. Notificar a los demás que estoy online
-      this.server.emit("userStatusChanged", {
+      this.server.emit('userStatusChanged', {
         userId: payload.sub,
-        status: "online",
+        status: 'online',
       });
     } catch (error) {
-      console.log("❌ Error en conexión:", error);
+      console.log('❌ Error en conexión:', error);
       client.disconnect();
     }
   }
@@ -61,25 +62,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // 🔴 Implementación obligatoria de OnGatewayDisconnect
   handleDisconnect(client: any) {
     if (client.user) {
-      this.activeUsers.delete(client.user.sub);
-      this.server.emit("userStatusChanged", {
+      this.presenceService.setOffline(client.user.sub);
+      this.server.emit('userStatusChanged', {
         userId: client.user.sub,
-        status: "offline",
+        status: 'offline',
       });
     }
   }
 
   // Create a new chat
   @UseGuards(JwtGuard)
-  @SubscribeMessage("createChat")
+  @SubscribeMessage('createChat')
   async create(
     @MessageBody() createChatDto: CreateChatDto,
-    @ConnectedSocket() client: Socket & { data: { user: UserEntity } },
+    @ConnectedSocket() client: Socket & { data: { user: UserEntity } }
   ) {
     const authUserId = client.data.user?.id;
 
     if (!authUserId) {
-      throw new WsException("Identidad de usuario no encontrada en el token");
+      throw new WsException('Identidad de usuario no encontrada en el token');
     }
 
     const chat = await this.chatService.create({
@@ -88,17 +89,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
 
     client.join(`chat_${chat.id}`);
-    client.emit("chatCreated", chat);
+    client.emit('chatCreated', chat);
     return;
   }
 
   // Send a message to a chat
   @UseGuards(JwtGuard)
-  @SubscribeMessage("sendMessage")
-  async handleSendMessage(
-    @MessageBody() data: CreateMessageDto,
-    @ConnectedSocket() client: any,
-  ) {
+  @SubscribeMessage('sendMessage')
+  async handleSendMessage(@MessageBody() data: CreateMessageDto, @ConnectedSocket() client: any) {
     const authUserId = client.user.sub;
 
     const message = await this.messagesService.create({
@@ -106,37 +104,34 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       senderId: authUserId,
     });
 
-    this.server.to(`chat_${data.chatId}`).emit("newMessage", message);
+    this.server.to(`chat_${data.chatId}`).emit('newMessage', message);
     return message;
   }
 
   // List chats for a user
-  @SubscribeMessage("findAllChats")
-  async findAll(@MessageBody() data: { userId: number }) {
+  @SubscribeMessage('findAllChats')
+  async findAll(@MessageBody() data: { userId: string }) {
     return this.chatService.findAllUserChats(data.userId);
   }
 
   // Join a chat room
-  @SubscribeMessage("joinRoom")
-  async handleJoinRoom(
-    @MessageBody() data: { chatId: number },
-    @ConnectedSocket() client: Socket,
-  ) {
+  @SubscribeMessage('joinRoom')
+  async handleJoinRoom(@MessageBody() data: { chatId: string }, @ConnectedSocket() client: Socket) {
     client.join(`chat_${data.chatId}`);
 
     // Al unirse, buscamos los mensajes previos
     const history = await this.messagesService.findByChat(data.chatId);
-    client.emit("loadHistory", history);
-    return { event: "joined", room: `chat_${data.chatId}` };
+    client.emit('loadHistory', history);
+    return { event: 'joined', room: `chat_${data.chatId}` };
   }
 
   @UseGuards(JwtGuard)
-  @SubscribeMessage("typing")
+  @SubscribeMessage('typing')
   handleTyping(
-    @MessageBody() data: { chatId: number; isTyping: boolean },
-    @ConnectedSocket() client: any,
+    @MessageBody() data: { chatId: string; isTyping: boolean },
+    @ConnectedSocket() client: any
   ) {
-    client.to(`chat_${data.chatId}`).emit("userTyping", {
+    client.to(`chat_${data.chatId}`).emit('userTyping', {
       chatId: data.chatId,
       userId: client.user.sub,
       isTyping: data.isTyping,

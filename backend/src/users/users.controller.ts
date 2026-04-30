@@ -10,12 +10,12 @@ import {
   Query,
   UseGuards,
   ParseIntPipe,
-} from "@nestjs/common";
-import { UsersService } from "./users.service";
-import { UpdateUserDto } from "./dto/update-user.dto";
-import { ROUTES } from "../constants/routes";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { FriendStatus } from "@prisma/client";
+} from '@nestjs/common';
+import { UsersService } from './users.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ROUTES } from '../constants/routes';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { FriendStatus } from '@prisma/client';
 
 @UseGuards(JwtAuthGuard)
 @Controller(ROUTES.USERS)
@@ -23,51 +23,44 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  findAll(@Query("search") search: string) {
+  findAll(@Query('search') search: string) {
     return this.usersService.findAllUsers(search);
   }
 
-  @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.usersService.getUserById(+id);
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.usersService.getUserById(id);
   }
 
-  @Patch(":id")
-  update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.updateUser(+id, updateUserDto);
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.updateUser(id, updateUserDto);
   }
 
-  @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.usersService.remove(+id);
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 
   // --- ENDPOINTS DE AMIGOS ---
-  @Post("friend-request/:id")
-  sendRequest(@Request() req, @Param("id") receiverId: string) {
-    return this.usersService.sendFriendRequestUser(
-      req.user.userId,
-      +receiverId
-    );
+  @Post('friend-request/:id')
+  sendRequest(@Request() req, @Param('id') receiverId: string) {
+    return this.usersService.sendFriendRequestUser(req.user.userId, receiverId);
   }
 
   // Update status reuqest friend (aceptar/rechazar/bloquear)
-  @Patch("friends/status/:senderId")
+  @Patch('friends/status/:senderId')
   async updateFriendStatus(
     @Request() req,
-    @Param("senderId", ParseIntPipe) senderId: number,
-    @Body("status") status: FriendStatus
+    @Param('senderId', ParseIntPipe) senderId: string,
+    @Body('status') status: FriendStatus
   ) {
     // El receiverId es el usuario logueado (quien acepta/rechaza)
-    return this.usersService.updateFriendStatusUser(
-      senderId,
-      req.user.userId,
-      status
-    );
+    return this.usersService.updateFriendStatusUser(senderId, req.user.userId, status);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get("me/friends")
+  @Get('me/friends')
   getMyFriends(@Request() req) {
     const userId = req.user.sub || req.user.userId;
     return this.usersService.getFriendsUsers(req.user.userId);

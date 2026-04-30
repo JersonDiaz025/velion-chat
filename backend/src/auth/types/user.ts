@@ -1,7 +1,7 @@
 import { Column } from "typeorm";
 
 export class UserEntity {
-  id!: number;
+  id!: string;
   name!: string;
   username!: string;
   @Column({ nullable: true })
