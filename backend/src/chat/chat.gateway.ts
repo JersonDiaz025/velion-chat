@@ -45,11 +45,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const payload = await this.jwtService.verifyAsync(token);
       client.user = payload; // Inyectamos el usuario en el socket
 
+      // Verificar si el usuario ya está conectado
+      if (this.presenceService.isOnline(payload.sub)) {
+        console.log(`🔄 Usuario ${payload.name} ya está conectado, omitiendo reconexión`);
+        return;
+      }
+
       // 3. Guardar en nuestro mapa de usuarios activos
       this.presenceService.setOnline(payload.sub, client.id);
 
+      console.log(`✅ Usuario conectado: ${payload.name} (ID: ${payload.sub})`);
+
       // 4. Notificar a los demás que estoy online
       this.server.emit('userStatusChanged', {
+        name: payload.name,
         userId: payload.sub,
         status: 'online',
       });
@@ -64,6 +73,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (client.user) {
       this.presenceService.setOffline(client.user.sub);
       this.server.emit('userStatusChanged', {
+        name: client.user.name,
         userId: client.user.sub,
         status: 'offline',
       });
@@ -75,9 +85,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('createChat')
   async create(
     @MessageBody() createChatDto: CreateChatDto,
-    @ConnectedSocket() client: Socket & { data: { user: UserEntity } }
+    @ConnectedSocket() client: any & { data: { user: UserEntity } }
   ) {
-    const authUserId = client.data.user?.id;
+    const authUserId = client.user?.sub;
+
+    console.log('Usuario autenticado en createChat:', client.user, authUserId);
 
     if (!authUserId) {
       throw new WsException('Identidad de usuario no encontrada en el token');
@@ -99,6 +111,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleSendMessage(@MessageBody() data: CreateMessageDto, @ConnectedSocket() client: any) {
     const authUserId = client.user.sub;
 
+    console.log('Usuario autenticado en sendMessage:', client.user, authUserId);
+
     const message = await this.messagesService.create({
       ...data,
       senderId: authUserId,
@@ -114,15 +128,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return this.chatService.findAllUserChats(data.userId);
   }
 
-  // Join a chat room
+  // Join a chat roomí
   @SubscribeMessage('joinRoom')
   async handleJoinRoom(@MessageBody() data: { chatId: string }, @ConnectedSocket() client: Socket) {
     client.join(`chat_${data.chatId}`);
+    console.log(`✅ Cliente ${client.id} se unió a chat_${data.chatId}`);
 
-    // Al unirse, buscamos los mensajes previos
+    // Al unirse, enviar el historial de mensajes
     const history = await this.messagesService.findByChat(data.chatId);
     client.emit('loadHistory', history);
+
     return { event: 'joined', room: `chat_${data.chatId}` };
+  }
+
+  // Leave a chat room
+  @SubscribeMessage('leaveRoom')
+  async handleLeaveRoom(
+    @MessageBody() data: { chatId: string },
+    @ConnectedSocket() client: Socket
+  ) {
+    client.leave(`chat_${data.chatId}`);
+    console.log(`👋 Cliente ${client.id} salió de chat_${data.chatId}`);
+    return { event: 'left', room: `chat_${data.chatId}` };
   }
 
   @UseGuards(JwtGuard)
@@ -134,6 +161,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.to(`chat_${data.chatId}`).emit('userTyping', {
       chatId: data.chatId,
       userId: client.user.sub,
+      name: client.user.name,
       isTyping: data.isTyping,
     });
   }

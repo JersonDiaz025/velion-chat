@@ -1,7 +1,7 @@
 // src/chat/chat.service.ts
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { CreateChatDto } from "./dto/create-chat.dto";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateChatDto } from './dto/create-chat.dto';
 
 @Injectable()
 export class ChatService {
@@ -25,9 +25,7 @@ export class ChatService {
 
       const existingChat = chats.find((chat) => {
         const ids = chat.participants.map((p) => p.userId);
-        return (
-          ids.length === 2 && ids.includes(userId) && ids.includes(targetId)
-        );
+        return ids.length === 2 && ids.includes(userId) && ids.includes(targetId);
       });
 
       if (existingChat) return existingChat;
@@ -60,16 +58,20 @@ export class ChatService {
 
   // Obtener todos los chats de un usuario específico
   async findAllUserChats(userId: string) {
-    return this.prisma.chat.findMany({
-      where: {
-        participants: { some: { userId } },
-      },
+    return await this.prisma.chat.findMany({
+        where: {
+          participants: { some: { userId } },
+        },
       include: {
         participants: {
+          where: {
+            userId: { not: userId },
+          },
           include: {
             user: {
               select: {
                 id: true,
+                name: true,
                 username: true,
                 initials: true,
                 avatarColor: true,
@@ -79,7 +81,7 @@ export class ChatService {
         },
         messages: {
           take: 1, // Traer el último mensaje para la vista de lista
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
         },
       },
     });
@@ -90,7 +92,7 @@ export class ChatService {
     return this.prisma.message.findMany({
       where: { chatId },
       take: limit,
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       include: {
         sender: {
           select: {
@@ -104,13 +106,38 @@ export class ChatService {
     });
   }
 
-  async findOne(id: string) {
-    return this.prisma.chat.findUnique({
+  async findOne(id: string, userId: string) {
+    const chat = await this.prisma.chat.findUnique({
       where: { id },
       include: {
-        participants: { include: { user: true } },
-        messages: true,
+        participants: {
+          where: {
+            userId: { not: userId },
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                username: true,
+                initials: true,
+                avatarColor: true,
+              },
+            },
+          },
+        },
+        // messages: true,
       },
     });
+
+    if (!chat) return null;
+
+    // const otherParticipant = chat.participants.find(
+    //   (participant) => participant.userId !== userId
+    // )?.user;
+
+    return {
+      participant: chat.participants[0]?.user,
+    };
   }
 }

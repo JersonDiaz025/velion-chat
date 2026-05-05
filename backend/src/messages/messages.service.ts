@@ -1,23 +1,20 @@
-import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-} from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { UpdateMessageDto } from "./dto/update-message.dto";
-import { CreateMessageDto } from "./dto/create-message.dto";
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { UpdateMessageDto } from './dto/update-message.dto';
+import { CreateMessageDto } from './dto/create-message.dto';
 
 @Injectable()
 export class MessagesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createMessageDto: CreateMessageDto) {
+    const { content, senderId, chatId } = createMessageDto;
     try {
       return await this.prisma.message.create({
         data: {
-          content: createMessageDto.content,
-          senderId: createMessageDto.senderId,
-          chatId: createMessageDto.chatId,
+          content,
+          senderId: senderId, // Sin llaves, solo el string
+          chatId: chatId, // Sin llaves, solo el string
         },
         include: {
           sender: {
@@ -32,8 +29,8 @@ export class MessagesService {
         },
       });
     } catch (error) {
-      console.error("Error al crear el mensaje:", error);
-      throw new InternalServerErrorException("Error al crear el mensaje");
+      console.error('Error al crear el mensaje:', error);
+      throw new InternalServerErrorException('Error al crear el mensaje');
     }
   }
 
@@ -56,15 +53,14 @@ export class MessagesService {
         },
       },
     });
-    if (!message)
-      throw new NotFoundException(`Mensaje con ID ${id} no encontrado`);
+    if (!message) throw new NotFoundException(`Mensaje con ID ${id} no encontrado`);
     return message;
   }
 
   async findByChat(chatId: string) {
     return await this.prisma.message.findMany({
       where: { chatId },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: 'asc' },
       include: {
         sender: {
           select: {

@@ -1,6 +1,13 @@
 import { ButtonProps } from '@/types/btn.types';
 
-export const Button = ({ label, icon, variant = 'primary', className, ...props }: ButtonProps) => {
+export const Button = ({
+  children,
+  label,
+  icon,
+  variant = 'primary',
+  className,
+  ...props
+}: ButtonProps) => {
   const baseStyles =
     'w-full h-12 cursor-pointer rounded-md font-bold tracking-tight shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2';
 
@@ -14,8 +21,9 @@ export const Button = ({ label, icon, variant = 'primary', className, ...props }
       className={`${className ? className : baseStyles} ${variants[variant]} ${className}`}
       {...props}
     >
-      <span>{label}</span>
+      {label && <span>{label}</span>}
       {icon && <span className='material-symbols-outlined text-sm'>{icon}</span>}
+      {children}
     </button>
   );
 };

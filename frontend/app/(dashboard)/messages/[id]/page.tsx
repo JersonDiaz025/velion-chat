@@ -1,37 +1,14 @@
-// app/(dashboard)/messages/[chatId]/page.tsx
+'use server';
+import ChatViewMain from '@/features/dashboard/chat/chatView/ChatViewMain';
+import { chatService } from '@/services/chat/chat.service';
 
 interface Props {
-  params: {
-    chatId: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
-export default function ChatPage({ params }: Props) {
-  return (
-    <>
-      {/* Header */}
-      <header className="h-16 flex items-center justify-between px-6 border-b">
-        <span className="font-semibold">Chat {params.chatId}</span>
-      </header>
+export default async function ChatPage({ params }: Props) {
+  const { id } = await params;
+  const { participant } = await chatService.getChatById(id);
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        <div className="bg-surface-container-high p-3 rounded-xl max-w-md">
-          Hola 👋
-        </div>
-
-        <div className="bg-primary text-black p-3 rounded-xl max-w-md ml-auto">
-          ¿Cómo estás?
-        </div>
-      </div>
-
-      {/* Input */}
-      <div className="p-4 border-t">
-        <input
-          className="w-full bg-surface-container p-3 rounded-xl"
-          placeholder="Escribe un mensaje..."
-        />
-      </div>
-    </>
-  );
+  return <ChatViewMain chatId={id} participant={participant} />;
 }

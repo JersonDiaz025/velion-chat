@@ -25,8 +25,8 @@ export default function Sidebar() {
       </nav>
       <Link href={ROUTES.PROFILE.ROOT}>
         <Avatar
-          initials='JC'
-          color=''
+          initials={user?.initials || ''}
+          color={user?.avatarColor || ''}
           isOnline
           showStatus
           className='ring-4 ring-surface-container-high'

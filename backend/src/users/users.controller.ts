@@ -28,8 +28,8 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.getUserById(id);
+  findOne(@Param('id') id: string, @Query('isFull') isFull?: boolean) {
+    return this.usersService.getUserById(id, isFull);
   }
 
   @Patch(':id')

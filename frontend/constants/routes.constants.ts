@@ -10,6 +10,7 @@ export const ROUTES = {
   REGISTER: '/register' as RouteString,
   USER_START: '/persons/start' as RouteString,
   NOTIFICATIONS: '/notifications' as RouteString,
+  CHATS: '/chats' as RouteString,
 
   PROFILE: {
     ROOT: '/profile',

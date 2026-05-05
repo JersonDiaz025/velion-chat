@@ -23,6 +23,8 @@ export class AuthService {
       token: this.jwtService.sign({
         sub: userData?.id,
         email: userData?.email,
+        name: userData?.name,
+        username: userData?.username,
       }),
       message: `Bienvenido ${userData?.name || userData?.username}`,
     };

@@ -1,6 +1,8 @@
 export class PayloadEntity {
   sub!: string;
   email!: string;
+  name!: string;
+  username!: string;
 }
 
 export class PayloadFull {

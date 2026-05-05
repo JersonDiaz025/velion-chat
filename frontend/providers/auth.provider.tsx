@@ -28,7 +28,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     };
 
     bootstrap();
-  }, [pathname, setUser]);
+  }, [user, pathname, setUser]);
 
   return <>{children}</>;
 }
