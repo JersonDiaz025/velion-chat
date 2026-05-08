@@ -1,4 +1,5 @@
-// features/chat/hooks/useChatMessages.ts
+'use client';
+
 import { useEffect, useState } from 'react';
 import { useSocket } from '@/providers/socket.provider';
 import { useChatStore } from '@/store/chat.store';
@@ -6,6 +7,7 @@ import { useChatStore } from '@/store/chat.store';
 type ChatMessage = {
   id: string;
   senderId: string;
+  chatId: string; // Importante para filtrar
   content: string;
   createdAt: string;
 };
@@ -14,57 +16,69 @@ export const useChatMessages = (chatId: string) => {
   const socket = useSocket();
   const { setTyping } = useChatStore();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [previousChatId, setPreviousChatId] = useState<string | null>(null);
 
-  // Efecto para manejar el cambio de sala
   useEffect(() => {
     if (!socket || !chatId) return;
 
-    // Si cambió el chatId, salir de la sala anterior
-    if (previousChatId && previousChatId !== chatId) {
-      socket.emit('leaveRoom', { chatId: previousChatId });
-    }
-
-    // Unirse a la nueva sala
-    socket.emit('joinRoom', { chatId }, (response: any) => {
-      console.log('✅ Unido a la sala:', response);
+    // 1. CARGAR HISTORIAL
+    // Usamos un callback directo (la función al final) para recibir los datos
+    socket.emit('getChatHistory', { chatId }, (history: ChatMessage[]) => {
+      if (Array.isArray(history)) {
+        setMessages(history);
+      }
     });
 
-    setPreviousChatId(chatId);
+    // 2. ESCUCHAR MENSAJES (Listener Global)
+    const handleNewMessage = (message: ChatMessage) => {
+      // Solo agregamos al estado local si el mensaje pertenece al chat abierto
+      if (message?.chatId === chatId) {
+        setMessages((prev) => [...prev, message]);
+      }
+      // Nota: Si no es de este chat, el SocketProvider se encarga del badge global
+    };
 
-    // Listeners para mensajes y typing
-    socket.on('loadHistory', (history) => {
+    // 3. ESCUCHAR CARGA DE HISTORIAL (Como respaldo si no usas callback)
+    const handleLoadHistory = (history: ChatMessage[]) => {
       setMessages(history);
-    });
+    };
 
-    socket.on('newMessage', (message) => {
-      console.log('Nuevo mensaje recibido:', message);
-      setMessages((prev) => [...prev, message]);
-    });
+    // 4. ESCUCHAR TYPING
+    const handleUserTyping = ({ chatId: incomingChatId, userId, isTyping, name }) => {
+      if (incomingChatId === chatId) {
+        setTyping(userId, isTyping, name);
+      }
+    };
 
-    socket.on('userTyping', ({ chatId: incomingChatId, userId, isTyping, name }) => {
-      if (incomingChatId !== chatId) return;
-      setTyping(userId, isTyping, name);
-    });
+    socket.on('loadHistory', handleLoadHistory);
+    socket.on('newMessage', handleNewMessage);
+    socket.on('userTyping', handleUserTyping);
 
     return () => {
-      socket.off('loadHistory');
-      socket.off('newMessage');
-      socket.off('userTyping');
+      socket.off('loadHistory', handleLoadHistory);
+      socket.off('newMessage', handleNewMessage);
+      socket.off('userTyping', handleUserTyping);
     };
-  }, [socket, chatId, previousChatId, setTyping]);
+  }, [socket, chatId, setTyping]);
 
+  // FUNCIÓN PARA ENVIAR MENSAJE
   const sendMessage = (content: string) => {
-    console.log('Enviando mensaje:', { chatId, content });
-    socket?.emit('sendMessage', {
-      chatId,
-      content,
-    });
+    if (socket?.connected) {
+      socket.emit('sendMessage', { chatId, content });
+    } else {
+      console.warn('⚠️ No se pudo enviar el mensaje: Socket desconectado');
+    }
   };
 
+  // FUNCIÓN PARA NOTIFICAR TYPING
   const sendTyping = (isTyping: boolean) => {
-    socket?.emit('typing', { chatId, isTyping });
+    if (socket?.connected) {
+      socket.emit('typing', { chatId, isTyping });
+    }
   };
 
-  return { messages, sendMessage, sendTyping };
+  return {
+    messages,
+    sendMessage,
+    sendTyping
+  };
 };

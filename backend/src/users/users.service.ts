@@ -166,7 +166,10 @@ export class UsersService {
       if (!user) throw new NotFoundException('Usuario no encontrado');
 
       // 1. Info básica agrupada
+      const status = user && this.presenceService.isOnline(user?.id);
+
       const profile = mapUserToProfile(user);
+      profile.status = status;
 
       if (!isFull) return profile;
 
@@ -180,7 +183,7 @@ export class UsersService {
       // 3. Formateamos conexiones para el front (status e info extra)
       const connections = friends.map((friend) => ({
         ...friend,
-        status: this.presenceService.isOnline(friend.id) ? 'online' : 'offline',
+        status: this.presenceService.isOnline(friend.id),
         lastSeen: this.presenceService.isOnline(friend.id) ? 'En línea' : 'Desconectado',
       }));
 
@@ -241,25 +244,55 @@ export class UsersService {
   }
 
   // Find user by param
-  async findAllUsers(query: string = '') {
-    return await this.prisma.extended.user.findMany({
+  async findAllUsers(query: string = '', currentUserId: string) {
+    // 1. Buscamos los usuarios
+    const users = await this.prisma.extended.user.findMany({
       where: {
+        id: { not: currentUserId },
+        // Filtro: Solo usuarios que NO tengan una solicitud de amistad activa contigo
+        // (ajusta los nombres de las relaciones según tu esquema de Prisma)
+        sentRequests: {
+          none: {
+            OR: [{ receiverId: currentUserId }, { senderId: currentUserId }],
+          },
+        },
+        receivedRequests: {
+          none: {
+            OR: [{ receiverId: currentUserId }, { senderId: currentUserId }],
+          },
+        },
+        // Tu lógica de búsqueda original
         OR: [
           { username: { contains: query, mode: 'insensitive' } },
           { name: { contains: query, mode: 'insensitive' } },
+          { email: { contains: query, mode: 'insensitive' } },
         ],
+        deletedAt: null, // Asegúrate de que no estén borrados
       },
-      // TODO: No devolver password ni email
       select: {
         id: true,
         username: true,
+        email: true,
         name: true,
+        createdAt: true,
         avatarColor: true,
         initials: true,
       },
     });
-  }
 
+    // 2. Mapeamos cada usuario individualmente para la fecha y presencia
+    const formatter = new Intl.DateTimeFormat('es-DO', {
+      month: 'long',
+      year: 'numeric',
+    });
+
+    return users.map((u) => ({
+      ...u,
+      memberSince: u.createdAt ? formatter.format(new Date(u.createdAt)) : 'Reciente',
+      status: this.presenceService.isOnline(u.id),
+      isActive: this.presenceService.isOnline(u.id),
+    }));
+  }
   // Delete user
   async remove(id: string) {
     return await this.prisma.extended.user.delete({

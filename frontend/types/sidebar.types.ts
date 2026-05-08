@@ -3,3 +3,8 @@ export interface SidebarItemProps {
   label: string;
   icon: React.ElementType;
 }
+
+export interface NewMessageBadgeProps {
+  count: number;
+  onClick: () => void;
+}

@@ -3,9 +3,10 @@ import { ButtonProps } from '@/types/btn.types';
 export const Button = ({
   children,
   label,
-  icon,
+  icon: Icon,
   variant = 'primary',
   className,
+  iconSize = 20,
   ...props
 }: ButtonProps) => {
   const baseStyles =
@@ -22,7 +23,7 @@ export const Button = ({
       {...props}
     >
       {label && <span>{label}</span>}
-      {icon && <span className='material-symbols-outlined text-sm'>{icon}</span>}
+      {Icon && <Icon size={iconSize} strokeWidth={2.5} />}
       {children}
     </button>
   );

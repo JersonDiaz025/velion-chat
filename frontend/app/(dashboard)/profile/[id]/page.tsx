@@ -1,13 +1,11 @@
 import { ProfileParams } from '@/types/profile.types';
-import { profileService } from '@/services/profile.service';
 import ProfileMain from '@/features/dashboard/profile/ProfileMain';
+import { profileServerService } from '@/services/profile.server.service';
 
 export default async function Page({ params }: ProfileParams) {
-  const userId = params?.id;
+    const { id } = await params;
 
-  const data = await profileService.getFullProfile(userId, true);
+    const data = await profileServerService.getFullProfile(id, true);
 
-  console.log('Profile by id', data);
-
-  //   return <ProfileMain initialData={data} isOwnProfile={false} />;
+    return <ProfileMain initialData={data} isOwnProfile={false} />;
 }

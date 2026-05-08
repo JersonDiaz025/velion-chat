@@ -1,5 +1,7 @@
 // features/chat/components/ChatBubble.tsx
+import Link from '@/components/shared/Link';
 import Avatar from '@/components/ui/Avatar';
+import { ROUTES } from '@/constants/routes.constants';
 import { CheckCheck } from 'lucide-react';
 import React from 'react';
 
@@ -8,15 +10,13 @@ interface Props {
     isMe: boolean;
 }
 
-export const ChatBubble = ({ message, isMe, isOnline }: Props) => {
+export const ChatBubble = ({ message, isMe }: Props) => {
     const formattedTime = new Date(message.createdAt).toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
     });
 
     const sender = message?.sender;
-
-    console.log('Renderizando ChatView con mensajes:', message);
 
     return (
         <div className={`flex w-full mb-5 px-4 ${isMe ? 'justify-end' : 'justify-start'}`}>
@@ -29,14 +29,16 @@ export const ChatBubble = ({ message, isMe, isOnline }: Props) => {
                             `}
             >
                 {!isMe && (
-                    <Avatar
-                        size='md'
-                        initials={sender.initials}
-                        isOnline={isOnline}
-                        color={sender.avatarColor}
-                        showStatus={isOnline}
-                        className='ring-4 rounded-full ring-surface-container-high'
-                    />
+                    <Link href={ROUTES.PROFILE.DETAIL(sender.id)}>
+                        <Avatar
+                            size='md'
+                            initials={sender.initials}
+                            isOnline={true}
+                            color={sender.avatarColor}
+                            showStatus={false}
+                            className='ring-4 rounded-full ring-surface-container-high'
+                        />
+                    </Link>
                 )}
 
                 <div

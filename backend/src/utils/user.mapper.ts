@@ -3,6 +3,7 @@ export const mapUserToProfile = (user: any) => ({
   username: user.username,
   email: user.email,
   name: user.name,
+  status: user.status,
   avatarColor: user.avatarColor,
   initials: user.initials,
   memberSince: new Intl.DateTimeFormat('es-DO', {

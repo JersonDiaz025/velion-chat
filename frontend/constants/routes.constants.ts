@@ -25,6 +25,7 @@ export const ROUTES = {
 
   PERSONS: {
     ROOT: '/persons' as RouteString,
+    USER: '/users' as RouteString,
     USERS: (id: string) => `/users/${id}`,
     DETAIL: (id: RouteParams): RouteString => `/persons/${id}`,
   },

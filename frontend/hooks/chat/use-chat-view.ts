@@ -1,99 +1,64 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useChatMessages } from './use-chat-message';
 import { useChatStore } from '@/store/chat.store';
 import { useAuthStore } from '@/store/auth.store';
 
-export const useChatView = (
-  chatId: string,
-  scrollRef: React.MutableRefObject<HTMLDivElement | null>
-) => {
-  const { messages, sendMessage, sendTyping } = useChatMessages(chatId);
-  const { typingUsers } = useChatStore();
-  const { user } = useAuthStore();
-  const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [typingDots, setTypingDots] = useState('.');
+export const useChatView = (chatId: string) => {
+    const { messages, sendMessage, sendTyping } = useChatMessages(chatId);
+    const { user } = useAuthStore();
+    const { incrementUnread, resetUnread, typingUsers } = useChatStore();
 
-  useEffect(() => {
-    const element = scrollRef.current;
-    if (!element) return;
-    element.scrollTop = element.scrollHeight;
-  }, [messages, scrollRef]);
+    const [localUnread, setLocalUnread] = useState(0);
 
-  useEffect(() => {
-    const hasTypingUsers = typingUsers && Object.values(typingUsers).length > 0;
-    let interval: ReturnType<typeof setInterval> | undefined;
-    let timeout: ReturnType<typeof setTimeout> | undefined;
+    // 1. Manejo de Mensajes Nuevos y Unread
+    useEffect(() => {
+        if (messages.length === 0) return;
 
-    if (hasTypingUsers) {
-      interval = setInterval(() => {
-        setTypingDots((current) => (current.length >= 3 ? '.' : `${current}.`));
-      }, 400);
-    }
+        const lastMessage = messages[messages.length - 1];
+        const isFromMe = lastMessage.senderId === user?.id;
 
-    if (isTyping) {
-      timeout = setTimeout(() => {
-        sendTyping(false);
-        setIsTyping(false);
-      }, 1500);
-    }
+        if (isFromMe) {
+            setLocalUnread(0);
+            resetUnread(chatId);
+        } else {
+            // Si recibimos un mensaje mientras estamos viendo este chat,
+            // lo marcamos como leído automáticamente en el store global (ChatList),
+            // pero mantenemos el localUnread por si queremos mostrar la tooltip abajo.
+            setLocalUnread((prev) => prev + 1);
 
-    return () => {
-      if (interval) clearInterval(interval);
-      if (timeout) clearTimeout(timeout);
+            // Opcional: si el usuario tiene el foco en la ventana, podrías resetear el global de una vez
+            // incrementUnread(chatId);
+        }
+    }, [messages.length, chatId, user?.id, resetUnread]);
+
+    // 2. Limpieza al cambiar de Chat
+    useEffect(() => {
+        setLocalUnread(0);
+        resetUnread(chatId);
+    }, [chatId, resetUnread]);
+
+    // 3. Lógica de Typing Names (Memoizada para evitar re-renders)
+    const typingNames = useMemo(() => {
+        return Object.entries(typingUsers)
+            .filter(([userId, data]) => {
+                // Solo mostrar si están escribiendo en ESTE chat y no soy YO
+                return data.isTyping && userId !== user?.id?.toString();
+            })
+            .map(([, data]) => data.name);
+    }, [typingUsers, user?.id]);
+
+    const markAsRead = () => {
+        setLocalUnread(0);
+        resetUnread(chatId);
     };
-  }, [typingUsers, isTyping, inputValue, sendTyping]);
 
-  const handleInputChange = (value: string) => {
-    setInputValue(value);
-
-    if (value.trim() === '' && isTyping) {
-      sendTyping(false);
-      setIsTyping(false);
-      return;
-    }
-
-    if (value.trim() !== '' && !isTyping) {
-      sendTyping(true);
-      setIsTyping(true);
-    }
-  };
-
-  const handleBlur = () => {
-    if (isTyping) {
-      sendTyping(false);
-      setIsTyping(false);
-    }
-  };
-
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
-
-    sendMessage(inputValue.trim());
-    setInputValue('');
-
-    if (isTyping) {
-      sendTyping(false);
-      setIsTyping(false);
-    }
-  };
-
-  const typingNames = useMemo(
-    () =>
-      Object.entries(typingUsers)
-        .filter(([userId, typingUser]) => typingUser.isTyping && userId !== user?.id.toString())
-        .map(([, typingUser]) => typingUser.name),
-    [typingUsers, user?.id]
-  );
-
-  return {
-    currentUserId: user?.id,
-    messages,
-    inputValue,
-    typingNames,
-    typingDots,
-    handleInputChange,
-    handleBlur,
-    handleSendMessage,
-  };
+    return {
+        messages,
+        unreadCount: localUnread,
+        typingNames, // ["Alex", "Jerson"]
+        handleSendMessage: sendMessage,
+        sendTyping,
+        markAsRead,
+        currentUserId: user?.id,
+    };
 };

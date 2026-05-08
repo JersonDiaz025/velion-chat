@@ -23,8 +23,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  findAll(@Query('search') search: string) {
-    return this.usersService.findAllUsers(search);
+  findAll(@Query('search') search: string, @Request() request: any) {
+    return this.usersService.findAllUsers(search, request.user.userId);
   }
 
   @Get(':id')

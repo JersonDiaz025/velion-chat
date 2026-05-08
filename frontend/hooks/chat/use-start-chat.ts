@@ -1,36 +1,31 @@
 import { useSocket } from '@/providers/socket.provider';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useCallback } from 'react';
 
 export const useStartChat = () => {
-  const socket = useSocket();
-  const router = useRouter();
+    const socket = useSocket();
+    const router = useRouter();
 
-  useEffect(() => {
-    if (!socket) return;
+    const startChat = useCallback(
+        (targetId: string) => {
+            if (!socket || !socket.connected) {
+                console.error('Socket no conectado');
+                return;
+            }
 
-    // Escuchamos la respuesta del backend (emitida en tu gateway)
-    socket.on('chatCreated', (chat) => {
-      // Una vez creado o encontrado, navegamos al ID real del chat
-      router.push(`/messages/${chat.id}`);
-    });
+            // Usamos un "Acknowledgement" (el tercer parámetro es una función que el servidor ejecuta)
+            // Esto es más limpio que usar socket.on('chatCreated') de forma global
+            socket.emit('createChat', { targetId }, (response: any) => {
+                if (response?.id) {
+                    // Navegamos directamente al chat usando la respuesta del servidor
+                    router.push(`/messages/${response?.id}`);
+                } else {
+                    console.error('Error al crear el chat:', response?.error);
+                }
+            });
+        },
+        [socket, router]
+    );
 
-    return () => {
-      socket.off('chatCreated');
-    };
-  }, [socket, router]);
-
-  const startChat = (targetId: string) => {
-    if (!socket) return;
-
-    // Emitimos el evento que viste en tu backend
-    // El backend revisará si ya existe o creará uno nuevo
-    socket.emit('createChat', {
-      targetId,
-      //   isGroup: false,
-      //   name: null, // Opcional para chats privados
-    });
-  };
-
-  return { startChat };
+    return { startChat };
 };

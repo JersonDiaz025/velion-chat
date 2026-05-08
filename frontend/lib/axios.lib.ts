@@ -33,14 +33,14 @@ api.interceptors.response.use(
 
     if (status === 401 || message === 'SESSION_NOT_FOUND') {
       if (typeof window !== 'undefined') {
-        notify.error('Tu sesión ha expirado. Por favor, ingresa tus credenciales nuevamente.', {
+        notify.error('Tu sesión ha expirado. Ingresa tus credenciales nuevamente.', {
           title: 'Sesión Expirada',
           duration: 6000,
           sonido: true,
         });
         setTimeout(async () => {
           await logout();
-        }, 1500);
+        }, 500);
       }
     }
 

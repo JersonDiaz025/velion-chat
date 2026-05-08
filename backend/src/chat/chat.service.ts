@@ -2,10 +2,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { PresenceService } from '../presence/presence.service';
 
 @Injectable()
 export class ChatService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private presenceService: PresenceService
+  ) {}
 
   async create(createChatDto: CreateChatDto) {
     const { userId, targetId, isGroup, name } = createChatDto;
@@ -57,15 +61,47 @@ export class ChatService {
   }
 
   // Obtener todos los chats de un usuario específico
+  //   async findAllUserChats(userId: string) {
+  //     return await this.prisma.chat.findMany({
+  //       where: {
+  //         participants: { some: { userId } },
+  //       },
+  //       include: {
+  //         participants: {
+  //           where: {
+  //             userId: { not: userId },
+  //           },
+  //           include: {
+  //             user: {
+  //               select: {
+  //                 id: true,
+  //                 name: true,
+  //                 username: true,
+  //                 initials: true,
+  //                 avatarColor: true,
+  //                 status: this.presenceService.isOnline(friend.id) ? 'online' : 'offline',
+  //                 lastSeen: this.presenceService.isOnline(friend.id) ? 'En línea' : 'Desconectado',
+  //               },
+  //             },
+  //           },
+  //         },
+  //         messages: {
+  //           take: 1, // Traer el último mensaje para la vista de lista
+  //           orderBy: { createdAt: 'desc' },
+  //         },
+  //       },
+  //     });
+  //   }
   async findAllUserChats(userId: string) {
-    return await this.prisma.chat.findMany({
-        where: {
-          participants: { some: { userId } },
-        },
+    // 1. Obtenemos los chats de la DB
+    const chats = await this.prisma.chat.findMany({
+      where: {
+        participants: { some: { userId } },
+      },
       include: {
         participants: {
           where: {
-            userId: { not: userId },
+            userId: { not: userId }, // Filtramos para traer solo al "otro"
           },
           include: {
             user: {
@@ -80,10 +116,29 @@ export class ChatService {
           },
         },
         messages: {
-          take: 1, // Traer el último mensaje para la vista de lista
+          take: 1,
           orderBy: { createdAt: 'desc' },
         },
       },
+    });
+
+    // 2. Mapeamos para inyectar el estado de presencia del servicio
+    return chats?.map((chat) => {
+      // Obtenemos al otro usuario (asumiendo chat individual)
+      const otherParticipant = chat?.participants[0]?.user;
+
+      if (otherParticipant) {
+        const isOnline = this.presenceService.isOnline(otherParticipant.id);
+
+        // Inyectamos las propiedades dinámicas
+        return {
+          ...chat,
+          isOnline,
+          lastSeen: isOnline ? 'En línea' : 'Desconectado',
+        };
+      }
+
+      return chat;
     });
   }
 
@@ -103,6 +158,14 @@ export class ChatService {
           },
         },
       },
+    });
+  }
+
+  // chat.service.ts
+  async findParticipantsByChatId(chatId: string) {
+    return this.prisma.chatParticipant.findMany({
+      where: { chatId },
+      select: { userId: true },
     });
   }
 
