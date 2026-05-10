@@ -134,7 +134,6 @@ export class ChatService {
         return {
           ...chat,
           isOnline,
-          lastSeen: isOnline ? 'En línea' : 'Desconectado',
         };
       }
 

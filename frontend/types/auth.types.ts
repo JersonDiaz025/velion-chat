@@ -1,44 +1,48 @@
 export interface LoginDto {
-  email: string;
-  password: string;
+    email: string;
+    password: string;
 }
 
-type Avatar = {
-  initials: string;
-  color: string;
+export type Avatar = {
+    initials: string;
+    color: string;
 };
 
 export type AuthState = {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  setUser: (user: User | null) => void;
-  logout: () => void;
+    user: User | null;
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    setUser: (user: User | null) => void;
+    logout: () => void;
 };
 
 export interface RegisterDto {
-  name: string;
-  username: string;
-  email: string;
-  password: string;
+    name: string;
+    username: string;
+    email: string;
+    password: string;
 }
 
 export interface User {
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-  avatar: Avatar;
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+    avatarColor?: string;
+    color?: Avatar['color'];
+    initials?: Avatar['initials'];
+    memberSince?: string;
+    status?: boolean;
 }
 
 export interface AuthResponse {
-  token: string;
-  message?: string;
-  user: User;
+    token: string;
+    message?: string;
+    user: User;
 }
 
 export interface ApiError {
-  message: string | string[];
-  status?: number;
-  errors?: Record<string, string[]>;
+    message: string | string[];
+    status?: number;
+    errors?: Record<string, string[]>;
 }

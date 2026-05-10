@@ -5,7 +5,7 @@ import { UserPlus, Check, Loader2, UserX } from 'lucide-react';
 import { Button } from './Button';
 
 interface FriendRequestButtonProps {
-    targetUserId: string;
+    targetUserId: number;
 }
 
 export function FriendRequestButton({ targetUserId }: FriendRequestButtonProps) {

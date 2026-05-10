@@ -1,35 +1,9 @@
-import { Calendar, Mail, ChevronRight } from 'lucide-react';
 import Avatar from './Avatar';
-import { ViewModeProps } from '@/types/view-mode.types';
 import Title from '../shared/Title';
-import { AvatarSize } from '@/types/avatar.types';
+import { ProfileCardProps } from '@/types/profile.types';
+import { Calendar, Mail, ChevronRight } from 'lucide-react';
 import { FriendRequestButton } from './FriendRequestButton';
-
-interface UserProfile {
-    id: string;
-    username: string;
-    email?: string;
-    name: string;
-    avatarColor: string;
-    initials: string;
-    memberSince?: string;
-}
-
-export interface ProfileCardProps {
-    id?: string;
-    profile: UserProfile;
-    isOnline?: boolean;
-    showStatus?: boolean;
-    previewMessage?: string;
-    previewDate?: string;
-    unreadCount?: number;
-    avatarClass?: {
-        style: string;
-        size: AvatarSize;
-    };
-    handleClick?: () => void;
-    viewMode: ViewModeProps['GRID'] | ViewModeProps['LIST'];
-}
+import { formatedTime } from '@/utils/formated-date.utils';
 
 export default function UserCard({
     handleClick,
@@ -44,6 +18,8 @@ export default function UserCard({
 }: ProfileCardProps) {
     const isList = viewMode === 'list';
 
+    const formattedTime = formatedTime(previewDate || '');
+
     return (
         <div
             onClick={handleClick}
@@ -56,19 +32,17 @@ export default function UserCard({
         }
       `}
         >
-            {/* Botón de acción en Grid */}
             {!isList && (
                 <div className='absolute top-4 right-4 z-10'>
-                    <FriendRequestButton targetUserId={profile.id} />
+                    <FriendRequestButton targetUserId={profile?.id} />
                 </div>
             )}
 
-            {/* Avatar Section */}
             <div className='relative shrink-0'>
                 <Avatar
                     size={isList ? 'lg' : avatarClass?.size || 'xl'}
-                    initials={profile.initials}
-                    color={profile.avatarColor}
+                    initials={profile.initials ?? ''}
+                    color={profile.avatarColor ?? ''}
                     isOnline={isOnline}
                     showStatus={showStatus}
                     className={
@@ -84,7 +58,6 @@ export default function UserCard({
                 )}
             </div>
 
-            {/* Content Section */}
             <div className={`flex-grow min-w-0 ${isList ? '' : 'mt-5 space-y-3'}`}>
                 <div className='flex items-center justify-between gap-2'>
                     <Title
@@ -96,10 +69,7 @@ export default function UserCard({
                         <span
                             className={`text-[10px] font-medium tracking-wider uppercase shrink-0 ${unreadCount > 0 ? 'text-primary' : 'text-secondary-dim'}`}
                         >
-                            {new Date(previewDate).toLocaleDateString('es-ES', {
-                                day: '2-digit',
-                                month: 'short',
-                            })}
+                            {formattedTime}
                         </span>
                     )}
                 </div>
@@ -126,14 +96,13 @@ export default function UserCard({
                                     size={14}
                                     className='shrink-0 group-hover/mail:text-primary transition-colors'
                                 />
-                                <span className='text-[13px] truncate'>{profile.email}</span>
+                                <span className='text-[13px] truncate'>{profile?.email}</span>
                             </div>
                         )}
                     </div>
                 )}
             </div>
 
-            {/* Indicadores de Lista (Derecha) */}
             {isList && (
                 <div className='flex flex-col relative items-end gap-2 shrink-0'>
                     {unreadCount > 0 ? (

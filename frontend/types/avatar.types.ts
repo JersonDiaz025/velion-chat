@@ -1,8 +1,10 @@
+import { Avatar } from "./auth.types";
+
 export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
 
 export interface AvatarProps {
-  initials: string;
-  color: string;
+  initials: Avatar['initials'];
+  color: Avatar['color'];
   size?: AvatarSize;
   isOnline?: boolean;
   showStatus?: boolean;

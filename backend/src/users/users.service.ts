@@ -184,7 +184,6 @@ export class UsersService {
       const connections = friends.map((friend) => ({
         ...friend,
         status: this.presenceService.isOnline(friend.id),
-        lastSeen: this.presenceService.isOnline(friend.id) ? 'En línea' : 'Desconectado',
       }));
 
       return {

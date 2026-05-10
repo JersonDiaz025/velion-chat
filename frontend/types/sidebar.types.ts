@@ -5,6 +5,5 @@ export interface SidebarItemProps {
 }
 
 export interface NewMessageBadgeProps {
-  count: number;
   onClick: () => void;
 }

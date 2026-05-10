@@ -8,14 +8,9 @@ const useInput = (props: ChatInputProps) => {
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    // Auto-resize del textarea
     useEffect(() => {
-        const textarea = textareaRef.current;
-        if (textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
-        }
-    }, [value]);
+        if (textareaRef.current) textareaRef.current.focus();
+    }, []);
 
     const handleChange = (val: string) => {
         setValue(val);

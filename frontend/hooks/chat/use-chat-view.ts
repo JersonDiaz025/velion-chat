@@ -1,64 +1,76 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo, useCallback, useLayoutEffect, useRef } from 'react';
 import { useChatMessages } from './use-chat-message';
 import { useChatStore } from '@/store/chat.store';
 import { useAuthStore } from '@/store/auth.store';
 
-export const useChatView = (chatId: string) => {
+export const useChatView = (chatId: number) => {
+    const user = useAuthStore((state) => state.user);
+    const { unreadMessages, resetUnread, typingUsers } = useChatStore();
     const { messages, sendMessage, sendTyping } = useChatMessages(chatId);
-    const { user } = useAuthStore();
-    const { incrementUnread, resetUnread, typingUsers } = useChatStore();
 
-    const [localUnread, setLocalUnread] = useState(0);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
-    // 1. Manejo de Mensajes Nuevos y Unread
-    useEffect(() => {
-        if (messages.length === 0) return;
+    const isNearBottom = useCallback((el: HTMLDivElement) => {
+        return el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+    }, []);
 
-        const lastMessage = messages[messages.length - 1];
-        const isFromMe = lastMessage.senderId === user?.id;
+    const scrollToBottom = useCallback(() => {
+        const el = scrollRef.current;
+        if (!el) return;
 
-        if (isFromMe) {
-            setLocalUnread(0);
-            resetUnread(chatId);
-        } else {
-            // Si recibimos un mensaje mientras estamos viendo este chat,
-            // lo marcamos como leído automáticamente en el store global (ChatList),
-            // pero mantenemos el localUnread por si queremos mostrar la tooltip abajo.
-            setLocalUnread((prev) => prev + 1);
+        // instantáneo, sin animación
+        el.scrollTop = el.scrollHeight;
+    }, []);
 
-            // Opcional: si el usuario tiene el foco en la ventana, podrías resetear el global de una vez
-            // incrementUnread(chatId);
+    // primer render → abajo
+    useLayoutEffect(() => {
+        scrollToBottom();
+    }, [scrollToBottom]);
+
+    // nuevos mensajes → auto scroll inteligente
+    useLayoutEffect(() => {
+        const el = scrollRef.current;
+        if (!el) return;
+
+        if (isNearBottom(el)) {
+            scrollToBottom();
         }
-    }, [messages.length, chatId, user?.id, resetUnread]);
+    }, [messages, isNearBottom, scrollToBottom]);
 
-    // 2. Limpieza al cambiar de Chat
-    useEffect(() => {
-        setLocalUnread(0);
+    const typingNames = useMemo(() => {
+        return Object.values(typingUsers).map((data) => data.name);
+    }, [typingUsers]);
+
+    const handleSendMessage = useCallback(
+        (content: string) => {
+            sendMessage(content);
+            resetUnread(chatId);
+
+            // cuando yo envío → siempre abajo
+            requestAnimationFrame(scrollToBottom);
+        },
+        [chatId, sendMessage, resetUnread, scrollToBottom]
+    );
+
+    const handleTyping = useCallback(
+        (isTyping: boolean) => {
+            sendTyping(isTyping);
+        },
+        [sendTyping]
+    );
+
+    const clearTooltip = useCallback(() => {
         resetUnread(chatId);
     }, [chatId, resetUnread]);
 
-    // 3. Lógica de Typing Names (Memoizada para evitar re-renders)
-    const typingNames = useMemo(() => {
-        return Object.entries(typingUsers)
-            .filter(([userId, data]) => {
-                // Solo mostrar si están escribiendo en ESTE chat y no soy YO
-                return data.isTyping && userId !== user?.id?.toString();
-            })
-            .map(([, data]) => data.name);
-    }, [typingUsers, user?.id]);
-
-    const markAsRead = () => {
-        setLocalUnread(0);
-        resetUnread(chatId);
-    };
-
     return {
+        scrollRef,
         messages,
-        unreadCount: localUnread,
-        typingNames, // ["Alex", "Jerson"]
-        handleSendMessage: sendMessage,
-        sendTyping,
-        markAsRead,
+        typingNames,
+        isUnread: unreadMessages[chatId] > 0,
+        handleSendMessage,
+        sendTyping: handleTyping,
+        markAsRead: clearTooltip,
         currentUserId: user?.id,
     };
 };

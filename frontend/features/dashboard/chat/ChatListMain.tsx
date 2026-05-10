@@ -1,98 +1,3 @@
-// 'use client';
-// import UserCard from '@/components/ui/UserCard';
-// import { VIEW_MODE } from '@/constants/view.constants';
-// import ChatListHeader from './ChatListHeader';
-// import { useStartChat } from '@/hooks/chat/use-start-chat';
-// import { useChatStore } from '@/store/chat.store';
-// import { useMemo } from 'react';
-// import ChatListItem from '@/components/shared/ChatListItem';
-
-// type Chat = {
-//     id: string;
-
-//     participants: Array<{
-//         userId: string;
-
-//         user: {
-//             id: string;
-
-//             username: string;
-
-//             name: string;
-
-//             avatarColor: string;
-
-//             initials: string;
-//         };
-//     }>;
-
-//     messages: Array<{
-//         content: string;
-
-//         createdAt: string;
-//     }>;
-// };
-
-// interface ChatListMainProps {
-//     data: Chat[];
-// }
-
-// const ChatListMain = ({ data }: ChatListMainProps) => {
-//     const { startChat } = useStartChat();
-//     // Escuchamos onlineUsers para re-renderizar si alguien se conecta/desconecta
-//     const onlineUsers = useChatStore((state) => state.onlineUsers);
-
-//     const chatItems = useMemo(() => {
-//         if (!data) return [];
-
-//         return data
-//             .map((chat) => {
-//                 const participant = chat.participants?.[0]?.user;
-//                 if (!participant) return null;
-
-//                 // Verificamos si el ID del participante está en el record de onlineUsers
-//                 const isOnline = !!onlineUsers[participant.id];
-
-//                 const lastMessageItem = chat.messages?.length
-//                     ? chat.messages.reduce((latest, message) =>
-//                           new Date(message.createdAt) > new Date(latest.createdAt)
-//                               ? message
-//                               : latest
-//                       )
-//                     : undefined;
-
-//                 return {
-//                     chatId: chat.id,
-//                     participant,
-//                     isOnline,
-//                     lastMessage: lastMessageItem?.content || 'Sin mensajes aún',
-//                     previewDate: lastMessageItem?.createdAt,
-//                 };
-//             })
-//             .filter(Boolean);
-//     }, [data, onlineUsers]);
-
-//     return (
-//         <section className='w-[340px] px-3 bg-surface-container-low flex h-full flex-col'>
-//             <ChatListHeader title='Mensajes' />
-//             <div className='flex-1 overflow-y-auto'>
-//                 {chatItems.length === 0 ? (
-//                     <div className='text-center py-8 text-secondary'>No tienes chats aún</div>
-//                 ) : (
-//                     chatItems.map((item) => (
-//                         <ChatListItem
-//                             key={item!.chatId}
-//                             item={item!}
-//                             onSelect={() => startChat(item!.participant.id)}
-//                         />
-//                     ))
-//                 )}
-//             </div>
-//         </section>
-//     );
-// };
-
-// export default ChatListMain;
 'use client';
 
 import React, { useMemo } from 'react';
@@ -108,6 +13,8 @@ interface ChatListMainProps {
 
 const ChatListMain = ({ data }: ChatListMainProps) => {
     const { startChat } = useStartChat();
+
+    console.log('ChatListMain renderizado con data:', data);
 
     const onlineUsers = useChatStore((state) => state.onlineUsers) || {};
     const unreadMessages = useChatStore((state) => state.unreadMessages) || {};

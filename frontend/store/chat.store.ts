@@ -1,34 +1,11 @@
 import { create } from 'zustand';
-
-// Estructura para el último mensaje guardado en memoria reactiva
-interface LastMessagePreview {
-    content: string;
-    createdAt: string;
-}
-
-interface ChatState {
-    typingUsers: Record<string, { isTyping: boolean; name: string }>;
-    onlineUsers: Record<string, string>; // userId -> name
-    unreadMessages: Record<string, number>; // chatId -> count
-    lastMessages: Record<string, LastMessagePreview>; // chatId -> { content, createdAt }
-
-    setTyping: (userId: string, isTyping: boolean, name: string) => void;
-    setOnline: (userId: string, name: string) => void;
-    setOffline: (userId: string) => void;
-
-    // Acciones para mensajes no leídos
-    incrementUnread: (chatId: string) => void;
-    resetUnread: (chatId: string) => void;
-
-    // Acción para actualizar el último mensaje al instante
-    setLastMessage: (chatId: string, message: LastMessagePreview) => void;
-}
+import { ChatState } from '@/types/msg.types';
 
 export const useChatStore = create<ChatState>((set) => ({
     typingUsers: {},
     onlineUsers: {},
     unreadMessages: {},
-    lastMessages: {}, // Inicializado como objeto vacío para evitar errores de undefined
+    lastMessages: {},
 
     setTyping: (userId, isTyping, name) =>
         set((state) => {
@@ -53,7 +30,6 @@ export const useChatStore = create<ChatState>((set) => ({
             return { onlineUsers: newOnlineUsers };
         }),
 
-    // Incrementa el contador de un chat específico
     incrementUnread: (chatId) =>
         set((state) => ({
             unreadMessages: {
@@ -62,7 +38,6 @@ export const useChatStore = create<ChatState>((set) => ({
             },
         })),
 
-    // Limpia el contador
     resetUnread: (chatId) =>
         set((state) => ({
             unreadMessages: {
@@ -71,7 +46,6 @@ export const useChatStore = create<ChatState>((set) => ({
             },
         })),
 
-    // Actualiza el preview del último mensaje en tiempo real
     setLastMessage: (chatId, message) =>
         set((state) => ({
             lastMessages: {

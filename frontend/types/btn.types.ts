@@ -4,6 +4,6 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   label?: string;
   isPrimary?: boolean;
   iconSize?: number;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   variant?: 'primary' | 'secondary';
 }

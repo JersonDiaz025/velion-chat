@@ -8,40 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { logout } from '@/app/(auth)/logout/route';
 import Link from '@/components/shared/Link';
 import { ROUTES } from '@/constants/routes.constants';
-
-interface Stat {
-    label: string;
-    value: string;
-}
-
-interface Connection {
-    id: number;
-    name: string;
-    status: boolean;
-    lastSeen: string;
-    initials?: string;
-}
-
-interface ProfileData {
-    profile: {
-        status?: boolean;
-        id: number;
-        username: string;
-        email: string;
-        name: string;
-        avatarColor: string;
-        initials: string;
-        bio: string;
-        memberSince: string;
-    };
-    stats: Stat[];
-    connections: Connection[];
-}
-
-interface ProfileMainProps {
-    initialData: ProfileData;
-    isOwnProfile: boolean;
-}
+import { ProfileMainProps } from '@/types/profile.types';
 
 const ProfileMain = ({ initialData, isOwnProfile }: ProfileMainProps) => {
     const { profile, stats, connections } = initialData;
@@ -160,9 +127,6 @@ const ProfileMain = ({ initialData, isOwnProfile }: ProfileMainProps) => {
                                     />
                                     <div>
                                         <h4 className='font-bold text-on-surface'>{conn.name}</h4>
-                                        <span className='text-secondary text-xs font-medium uppercase'>
-                                            {conn.lastSeen}
-                                        </span>
                                     </div>
                                 </div>
                                 <button className='p-2 bg-surface-container rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary hover:text-on-primary'>

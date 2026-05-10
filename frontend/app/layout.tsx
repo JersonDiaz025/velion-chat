@@ -3,52 +3,55 @@ import { Geist, Geist_Mono, Manrope } from 'next/font/google';
 import './globals.css';
 import AuthProvider from '@/providers/auth.provider';
 import { Suspense } from 'react';
+import { ToastProvider } from '@/components/ui/toast';
 
 const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
+    variable: '--font-geist-sans',
+    subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
+    variable: '--font-geist-mono',
+    subsets: ['latin'],
 });
 
 const manrope = Manrope({
-  variable: '--font-manrope',
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+    variable: '--font-manrope',
+    subsets: ['latin'],
+    weight: ['300', '400', '500', '600', '700', '800'],
 });
 
 export const metadata: Metadata = {
-  title: 'Velion - chat',
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-  },
-  description: 'Velion chat tiempo real',
+    title: 'Velion - chat',
+    icons: {
+        icon: '/favicon.ico',
+        shortcut: '/favicon.ico',
+    },
+    description: 'Velion chat tiempo real',
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html
-      lang='es'
-      className={`
+    return (
+        <html
+            lang='es'
+            className={`
         ${geistSans.variable}
         ${geistMono.variable}
         ${manrope.variable}
         h-full
       `}
-    >
-      <body className='min-h-full antialiased'>
-        <Suspense fallback={null}>
-          <AuthProvider>{children}</AuthProvider>
-        </Suspense>
-      </body>
-    </html>
-  );
+        >
+            <body className='min-h-full antialiased'>
+                <Suspense fallback={null}>
+                    <ToastProvider>
+                        <AuthProvider>{children}</AuthProvider>
+                    </ToastProvider>
+                </Suspense>
+            </body>
+        </html>
+    );
 }

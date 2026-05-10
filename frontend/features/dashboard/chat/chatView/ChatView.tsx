@@ -1,57 +1,40 @@
-'use client';
-
-import { useRef } from 'react';
 import { ChatBubble } from './ChatBubble';
 import { ChatInput } from '@/components/shared/ChatInput';
 import { ChatViewProps, MessageProps } from '@/types/msg.types';
 import { NewMessageBadge } from '@/components/shared/NewMessageBadge';
 
 export default function ChatView({
+    scrollRef,
     messages,
-    unreadCount,
-    handleSendMessage,
-    sendTyping,
+    isUnread,
     markAsRead,
+    sendTyping,
     userId,
+    handleSendMessage,
 }: ChatViewProps) {
-    const scrollRef = useRef<HTMLDivElement>(null);
-    const bottomRef = useRef<HTMLDivElement>(null);
+    const goToBottom = () => {
+        if (!scrollRef?.current) return;
+        const el = scrollRef.current;
 
-    // useEffect(() => {
-    //     if (scrollRef.current) {
-    //         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    //     }
-    // }, [messages]);
+        el.scrollTop = el.scrollHeight;
+        markAsRead();
+    };
 
     return (
-        <div className='flex flex-col h-full bg-surface overflow-hidden relative'>
-            <div ref={scrollRef} className='flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth'>
+        <div className='relative flex h-full flex-col overflow-hidden'>
+            <div ref={scrollRef} className='flex-1 overflow-y-auto space-y-4 overscroll-none'>
                 {messages?.length === 0 ? (
-                    <div className='h-full flex items-center justify-center text-secondary opacity-50 italic text-sm'>
-                        No hay mensajes todavía. ¡Saluda! 👋
+                    <div className='flex h-full items-center justify-center text-sm italic opacity-50 text-secondary'>
+                        No hay mensajes todavía. ¡Saluda!
                     </div>
                 ) : (
                     messages.map((msg: MessageProps) => (
                         <ChatBubble key={msg.id} message={msg} isMe={msg.senderId === userId} />
                     ))
                 )}
-
-                <div ref={bottomRef} className='h-1' />
             </div>
-
-            {unreadCount > 0 && (
-                <NewMessageBadge
-                    count={unreadCount}
-                    onClick={() => {
-                        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-                        markAsRead();
-                    }}
-                />
-            )}
-
-            <div className='p-4 bg-surface border-t border-surface-container-low'>
-                <ChatInput onSendMessage={handleSendMessage} onTyping={sendTyping} />
-            </div>
+            {isUnread && <NewMessageBadge onClick={goToBottom} />}
+            <ChatInput onSendMessage={handleSendMessage} onTyping={sendTyping} />
         </div>
     );
 }

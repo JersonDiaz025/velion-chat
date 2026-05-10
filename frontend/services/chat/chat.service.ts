@@ -12,7 +12,7 @@ export const chatService = {
     }
   },
 
-  getChatById: async (chatId: string): Promise<any> => {
+  getChatById: async (chatId: number): Promise<any> => {
     const apiServer = await getApiServer();
 
     try {

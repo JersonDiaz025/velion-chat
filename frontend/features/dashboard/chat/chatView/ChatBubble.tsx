@@ -1,22 +1,14 @@
-// features/chat/components/ChatBubble.tsx
 import Link from '@/components/shared/Link';
+import Title from '@/components/shared/Title';
 import Avatar from '@/components/ui/Avatar';
 import { ROUTES } from '@/constants/routes.constants';
-import { CheckCheck } from 'lucide-react';
+import { PropsBubbleMessage } from '@/types/msg.types';
+import { formatedTime } from '@/utils/formated-date.utils';
 import React from 'react';
 
-interface Props {
-    message: any;
-    isMe: boolean;
-}
-
-export const ChatBubble = ({ message, isMe }: Props) => {
-    const formattedTime = new Date(message.createdAt).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-
+export const ChatBubble = ({ message, isMe }: PropsBubbleMessage) => {
     const sender = message?.sender;
+    const formattedTime = formatedTime(message?.createdAt);
 
     return (
         <div className={`flex w-full mb-5 px-4 ${isMe ? 'justify-end' : 'justify-start'}`}>
@@ -29,12 +21,12 @@ export const ChatBubble = ({ message, isMe }: Props) => {
                             `}
             >
                 {!isMe && (
-                    <Link href={ROUTES.PROFILE.DETAIL(sender.id)}>
+                    <Link href={ROUTES.PROFILE.DETAIL(sender?.id || '')}>
                         <Avatar
                             size='md'
-                            initials={sender.initials}
+                            initials={sender?.initials || ''}
                             isOnline={true}
-                            color={sender.avatarColor}
+                            color={sender?.avatarColor || ''}
                             showStatus={false}
                             className='ring-4 rounded-full ring-surface-container-high'
                         />
@@ -51,6 +43,7 @@ export const ChatBubble = ({ message, isMe }: Props) => {
                         className={`
                                     w-fit
                                     max-w-full
+                                    font-semibold
                                     px-5 py-3
                                     rounded-2xl
                                     shadow-md
@@ -60,17 +53,14 @@ export const ChatBubble = ({ message, isMe }: Props) => {
                                     [word-break:break-word]
                                     ${
                                         isMe
-                                            ? 'bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-br-sm'
+                                            ? 'bg-gradient-to-br from-primary to-primary-container text-shadow-on-primary-container rounded-br-sm'
                                             : 'bg-surface-container-high text-on-surface rounded-bl-sm border border-outline-variant/10'
                                     }
             `}
                     >
-                        <p className='text-[14px] md:text-[15px] leading-relaxed'>
-                            {message.content}
-                        </p>
+                        <Title as='p' text={message.content} className='text-sm leading-relaxed' />
                     </div>
 
-                    {/* metadata */}
                     <div
                         className={`
                             mt-1 px-1
@@ -79,8 +69,6 @@ export const ChatBubble = ({ message, isMe }: Props) => {
                             `}
                     >
                         <span className='text-[10px] text-secondary/70'>{formattedTime}</span>
-
-                        {/* {isMe && <CheckCheck />} */}
                     </div>
                 </div>
             </div>

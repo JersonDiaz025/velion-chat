@@ -1,4 +1,3 @@
-import { useChatStore } from '@/store/chat.store';
 import UserCard from '../ui/UserCard';
 import { VIEW_MODE } from '@/constants/view.constants';
 
@@ -17,7 +16,7 @@ const ChatListItem = ({ item, onSelect }: { item: any; onSelect: () => void }) =
             }}
             previewMessage={item.lastMessage}
             previewDate={item.previewDate}
-            unreadCount={item.unreadCount} // Ahora es reactivo y real
+            unreadCount={item.unreadCount}
         />
     );
 };

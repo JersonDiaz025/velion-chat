@@ -1,42 +1,39 @@
 'use client';
-import Avatar from '@/components/ui/Avatar';
-import { useChatView } from '@/hooks/chat/use-chat-view';
-import { MoreVertical } from 'lucide-react';
 import ChatView from './ChatView';
-import Title from '@/components/shared/Title';
+import { MoreVertical } from 'lucide-react';
 import Link from '@/components/shared/Link';
-import { ROUTES } from '@/constants/routes.constants';
+import Avatar from '@/components/ui/Avatar';
+import Title from '@/components/shared/Title';
 import { useChatStore } from '@/store/chat.store';
-
-interface ChatViewMainProps {
-    chatId: string;
-    participant: {
-        id: string;
-        name: string;
-        username: string;
-        avatarColor: string;
-        initials: string;
-    };
-}
+import { ROUTES } from '@/constants/routes.constants';
+import { ChatViewMainProps } from '@/types/chat.types';
+import { useChatView } from '@/hooks/chat/use-chat-view';
+import { MotionGrid } from '@/components/ui/motion-grid';
 
 const ChatViewMain = ({ chatId, participant }: ChatViewMainProps) => {
-    // Extraemos todo lo necesario del hook, incluyendo typingNames procesados
-    const { typingNames, currentUserId, ...chatProps } = useChatView(chatId);
-
-    // Obtenemos el estado de conexión global para el Avatar
-    const isOnline = useChatStore((state) => !!state.onlineUsers[participant?.id]);
+    const {
+        typingNames,
+        scrollRef,
+        isUnread,
+        markAsRead,
+        currentUserId,
+        messages,
+        sendTyping,
+        handleSendMessage,
+    } = useChatView(chatId);
 
     const isTyping = typingNames?.includes(participant?.name);
+    const isOnline = useChatStore((state) => !!state.onlineUsers[participant?.id]);
 
     return (
         <div className='flex flex-col h-full overflow-hidden'>
-            <header className='h-20 flex-shrink-0 flex items-center justify-between px-8 border-b border-surface-container-low bg-surface'>
+            <header className='h-20 flex-shrink-0  flex items-center justify-between px-8 bg-surface backdrop-blur-md border-b border-white/10'>
                 <Link href={ROUTES.PROFILE.DETAIL(participant?.id)}>
                     <div className='flex items-center gap-4'>
                         <Avatar
                             size='md'
-                            initials={participant?.initials}
-                            color={participant?.avatarColor}
+                            initials={participant?.initials || ''}
+                            color={participant?.avatarColor || ''}
                             isOnline={isOnline}
                             showStatus={true}
                             className='ring-4 rounded-md ring-surface-container-high'
@@ -47,7 +44,6 @@ const ChatViewMain = ({ chatId, participant }: ChatViewMainProps) => {
                                 className='font-bold text-primary leading-none mb-1'
                             />
 
-                            {/* Switch elegante entre Username y Typing Status */}
                             <div className='flex rounded-md px-2 py-1 overflow-hidden bg-surface-container-highest'>
                                 {isTyping ? (
                                     <span className='text-xs font-semibold text-primary flex items gap-1'>
@@ -73,9 +69,29 @@ const ChatViewMain = ({ chatId, participant }: ChatViewMainProps) => {
                 </div>
             </header>
 
-            {/* Área de Mensajes */}
-            <main className='flex-1 overflow-hidden relative'>
-                <ChatView chatId={chatId} userId={currentUserId} {...chatProps} />
+            <main className='flex-1 overflow-hidden relative bg-surface'>
+                <div className='absolute inset-0 z-0'>
+                    <MotionGrid
+                        speed='3s'
+                        opacity={0.15}
+                        enableGlow={true}
+                        lineColor='20, 184, 166'
+                        className='w-full h-full'
+                    />
+                </div>
+
+                <div className='relative px-4 z-10 h-full'>
+                    <ChatView
+                        scrollRef={scrollRef}
+                        chatId={chatId}
+                        isUnread={isUnread}
+                        markAsRead={markAsRead}
+                        sendTyping={sendTyping}
+                        userId={currentUserId}
+                        messages={messages}
+                        handleSendMessage={handleSendMessage}
+                    />
+                </div>
             </main>
         </div>
     );

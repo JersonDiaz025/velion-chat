@@ -1,26 +1,24 @@
-import { useSocket } from '@/providers/socket.provider';
-import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { MessageProps } from '@/types/msg.types';
+import { ROUTES } from '@/constants/routes.constants';
+import { useSocket } from '@/providers/socket.provider';
 
 export const useStartChat = () => {
     const socket = useSocket();
     const router = useRouter();
 
     const startChat = useCallback(
-        (targetId: string) => {
+        (targetId: number) => {
             if (!socket || !socket.connected) {
-                console.error('Socket no conectado');
                 return;
             }
 
-            // Usamos un "Acknowledgement" (el tercer parámetro es una función que el servidor ejecuta)
-            // Esto es más limpio que usar socket.on('chatCreated') de forma global
-            socket.emit('createChat', { targetId }, (response: any) => {
+            socket.emit('createChat', { targetId }, (response: MessageProps) => {
                 if (response?.id) {
-                    // Navegamos directamente al chat usando la respuesta del servidor
-                    router.push(`/messages/${response?.id}`);
+                    router.push(ROUTES.MESSAGES.CHAT(response?.id));
                 } else {
-                    console.error('Error al crear el chat:', response?.error);
+                    console.error('Error al crear el chat:', response);
                 }
             });
         },
