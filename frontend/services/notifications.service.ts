@@ -1,6 +1,6 @@
 import { getApiServer } from '@/lib/api-server';
 import { ROUTES } from '@/constants/routes.constants';
-import { NotificationProps, NotificationsResponse } from '@/types/notifications.types'; // Asegúrate de crear este tipo
+import { NotificationProps, NotificationsResponse } from '@/types/notifications.types';
 
 export const notificationsService = {
     /**
@@ -17,22 +17,33 @@ export const notificationsService = {
         search: string = ''
     ): Promise<NotificationsResponse> => {
         const apiServer = await getApiServer();
-        console.log('Buscando en ', search);
+        const resolvedPage = Math.max(1, Math.floor(page));
 
         try {
             const response = await apiServer.get<NotificationsResponse>(ROUTES.NOTIFICATIONS.ROOT, {
                 params: {
-                    page: Math.max(1, Math.floor(page)),
+                    page: resolvedPage,
                     limit: Math.max(1, Math.floor(limit)),
                     ...(search && { q: search }),
                 },
             });
-            return response;
+            return {
+                ...response,
+                currentPage: response.currentPage ?? resolvedPage,
+                searchQuery: response.searchQuery ?? (search || undefined),
+            };
         } catch (error) {
             console.error('Error fetching notifications:', error);
             return {
                 data: [],
-                meta: { total: 0, page: 1, lastPage: 1 },
+                currentPage: resolvedPage,
+                searchQuery: search || undefined,
+                meta: {
+                    total: 0,
+                    page: resolvedPage,
+                    lastPage: 1,
+                    canNavigate: false,
+                },
             };
         }
     },
@@ -51,6 +62,16 @@ export const notificationsService = {
         } catch (error) {
             console.error('Error marking notification as read:', error);
             throw new Error('Failed to mark notification as read');
+        }
+    },
+
+    markAllAsRead: async (): Promise<{ count: number }> => {
+        const apiServer = await getApiServer();
+        try {
+            return await apiServer.patch<{ count: number }>(ROUTES.NOTIFICATIONS.MARK_ALL_READ);
+        } catch (error) {
+            console.error('Error marking all notifications as read:', error);
+            throw new Error('Failed to mark all notifications as read');
         }
     },
 };

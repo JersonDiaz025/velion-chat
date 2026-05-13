@@ -33,8 +33,15 @@ export class NotificationsController {
     );
   }
 
+  @Patch('read-all')
+  async markAllAsRead(@Request() req) {
+    const userId = req?.user?.userId || req?.user?.sub;
+    return await this.notificationsService.markAllAsRead(userId);
+  }
+
   @Patch(':id/read')
-  async markAsRead(@Param('id') id: string) {
-    return await this.notificationsService.markAsRead(id);
+  async markAsRead(@Param('id') id: string, @Request() req) {
+    const userId = req?.user?.userId || req?.user?.sub;
+    return await this.notificationsService.markAsRead(id, userId);
   }
 }

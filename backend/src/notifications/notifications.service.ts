@@ -14,28 +14,30 @@ export class NotificationsService {
   /**
    * Envía a un solo usuario
    */
-  async notify(dto: CreateNotificationDto) {
-    // const notification = await this.prisma.notification.create({
-    //   data: {
-    //     userId: dto.userId,
-    //     title: dto.title,
-    //     body: dto.body,
-    //     type: dto.type,
-    //     metadata: dto.metadata,
-    //   },
-    // });
-    const notification = {
-      data: {
-        userId: dto.userId,
-        title: dto.title,
-        body: dto.body,
-        type: dto.type,
-        metadata: dto.metadata,
-      },
-    };
+  async notify(dto: CreateNotificationDto, isSaved = true) {
+    let notification;
+
+    if (isSaved) {
+      notification = await this.prisma.notification.create({
+        data: {
+          userId: dto.userId,
+          title: dto.title,
+          body: dto.body,
+          type: dto.type,
+          metadata: dto.metadata,
+        },
+      });
+    } else {
+      notification = {
+        ...dto,
+        id: `volatile_${Date.now()}`,
+        read: false,
+        createdAt: new Date(),
+      };
+    }
 
     if (this.chatGateway.server) {
-      this.chatGateway.server.to(dto.userId).emit('notification', notification.data);
+      this.chatGateway.server.to(dto.userId).emit('notification', notification);
     }
 
     return notification;
@@ -45,12 +47,8 @@ export class NotificationsService {
    * MÉTODO MAESTRO GLOBAL: Notifica a todos los usuarios
    */
   async notifyAll(dto: Omit<CreateNotificationDto, 'userId'>) {
-    // 1. Obtenemos todos los IDs de usuarios activos
     const users = await this.prisma.user.findMany({ select: { id: true } });
-
     if (users.length === 0) return;
-
-    // 2. Persistencia Masiva (Bulk Insert) - Mucho más rápido que un loop
     const notificationsData = users.map((user) => ({
       userId: user.id,
       title: dto.title,
@@ -113,10 +111,18 @@ export class NotificationsService {
     };
   }
 
-  async markAsRead(id: string) {
+  async markAsRead(id: string, userId: string) {
     return await this.prisma.notification.update({
-      where: { id },
+      where: { id, userId },
       data: { read: true },
     });
+  }
+
+  async markAllAsRead(userId: string) {
+    const result = await this.prisma.notification.updateMany({
+      where: { userId, read: false },
+      data: { read: true },
+    });
+    return { count: result.count };
   }
 }

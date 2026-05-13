@@ -5,14 +5,16 @@ import Image from 'next/image';
 import SidebarItem from './SidebarItem';
 import Avatar from '@/components/ui/Avatar';
 import { useAuth } from '@/hooks/auth/use-auth';
+import { useChatStore } from '@/store/chat.store';
 import { sidebarLinks } from '@/data/sidebar-links';
 import { ROUTES } from '@/constants/routes.constants';
 import { useNotificationStore } from '@/store/notifications.store';
-import { useChatStore } from '@/store/chat.store';
 
 export default function Sidebar() {
     const { user } = useAuth();
-    // const { unreadMessages } = useChatStore();
+    const totalUnreadMessages = useChatStore((s) =>
+        Object.values(s.unreadMessages).reduce((sum, n) => sum + (n ?? 0), 0)
+    );
     const { unreadCount } = useNotificationStore();
 
     return (
@@ -23,9 +25,9 @@ export default function Sidebar() {
             <nav className='flex flex-1 flex-col gap-8'>
                 {sidebarLinks?.map((item) => {
                     let count: number = 0;
-                    // if (item.href === ROUTES.MESSAGES.ROOT) {
-                    //     count = unreadMessages;
-                    // }
+                    if (item.href === ROUTES.MESSAGES.ROOT) {
+                        count = totalUnreadMessages;
+                    }
                     if (item.href === ROUTES.NOTIFICATIONS.ROOT) {
                         count = unreadCount;
                     }

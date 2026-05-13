@@ -46,7 +46,6 @@ export const useChatView = (chatId: number) => {
             sendMessage(content);
             resetUnread(chatId);
 
-            // cuando yo envío → siempre abajo
             requestAnimationFrame(scrollToBottom);
         },
         [chatId, sendMessage, resetUnread, scrollToBottom]

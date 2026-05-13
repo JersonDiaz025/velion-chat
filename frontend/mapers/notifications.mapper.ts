@@ -1,7 +1,7 @@
 import { NotificationType } from '@/constants/types.constants';
-import { Config, MetadataProps } from '@/types/notifications.types';
+import { MetadataProps, NotificationToastConfig } from '@/types/notifications.types';
 
-export const NOTIFICATION_MAP: Record<NotificationType, Config> = {
+export const NOTIFICATION_MAP: Record<NotificationType, NotificationToastConfig> = {
     [NotificationType.FRIEND_REQUEST]: {
         accent: 'bg-primary',
         actionLabel: 'Ver perfil',

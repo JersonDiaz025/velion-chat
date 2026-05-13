@@ -19,6 +19,7 @@ export const ROUTES = {
 
     NOTIFICATIONS: {
         ROOT: '/notifications' as RouteString,
+        MARK_ALL_READ: '/notifications/read-all' as RouteString,
         MARK_READ: (id: RouteParams): RouteString => `/notifications/${id}/read`,
         DETAIL: (id: RouteParams): RouteString => `/notifications/${id}`,
     } as const,

@@ -1,9 +1,13 @@
 // types/notifications.types.ts
+import type { ReactNode } from 'react';
+import type { NotificationType } from '@/constants/types.constants';
+import { NotificationTypeFilter } from '@/constants/notifications-filter.constants';
+
 export interface NotificationProps {
     id: string;
     title: string;
     body: string;
-    type: 'SYSTEM' | 'MESSAGE' | 'FRIEND_REQUEST';
+    type: NotificationType;
     metadata?: MetadataProps;
     read: boolean;
     createdAt: string;
@@ -17,7 +21,8 @@ export interface MetadataProps {
     username: string;
 }
 
-export interface Config {
+/** Visual + behavior config for toast / smart notifications (`NOTIFICATION_MAP`). */
+export interface NotificationToastConfig {
     accent: string;
     icon?: string;
     duration?: number;
@@ -29,7 +34,16 @@ export interface Config {
         | 'top-center'
         | 'bottom-center';
     actionLabel?: string;
-    actionRoute?: (meta: any) => string;
+    actionRoute?: (meta: MetadataProps | undefined) => string;
+}
+
+/** Row UI config for the notifications list (`NotificationItem`). */
+export interface NotificationItemConfig {
+    icon: ReactNode;
+    color: string;
+    iconColor: string;
+    href: string;
+    category: 'system' | 'friend_request' | 'message' | 'security';
 }
 
 export interface PageProps {
@@ -48,15 +62,30 @@ export interface NotificationsResponse {
     };
 }
 
+export interface NotificationActionsProps {
+    onMarkAllRead?: () => void | Promise<void>;
+    typeFilter: NotificationTypeFilter;
+    onTypeFilterChange: (value: NotificationTypeFilter) => void;
+}
+
+export interface SmartNotificationToastProps {
+    toastId: string;
+    visible: boolean;
+    notification: NotificationProps;
+    config: NotificationToastConfig;
+}
+
 export interface NotificationState {
     notifications: NotificationProps[];
     unreadCount: number;
     setNotifications: (notifications: NotificationProps[]) => void;
     addNotification: (notification: NotificationProps) => void;
-    markAsRead: (id: string) => void;
+    markAsReadOptimistic: (id: string) => void;
+    markAsReadFailure: (id: string) => void;
     setUnreadCount: (count: number) => void;
+    markAllAsReadOptimistic: () => void;
     receiveNewNotification: (
-        notifications: NotificationProps,
+        notification: NotificationProps,
         isNotificationsFocus: boolean
     ) => void;
 }

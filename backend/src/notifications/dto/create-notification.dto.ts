@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, IsOptional, IsEnum, IsObject } from 'class-validator';
-import { NOTIFICATION_TYPES } from '../../constants/status-friends-req';
+import { NotificationType } from '../../constants/notifications.constans';
 
 export class CreateNotificationDto {
   @IsString()
@@ -14,9 +14,9 @@ export class CreateNotificationDto {
   @IsNotEmpty()
   body!: string;
 
-  @IsEnum(NOTIFICATION_TYPES)
+  @IsEnum(NotificationType)
   @IsNotEmpty()
-  type!: string;
+  type!: NotificationType;
 
   @IsOptional()
   @IsObject()

@@ -1,20 +1,29 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException, forwardRef, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationLabels, NotificationType } from '../constants/notifications.constans';
 
 @Injectable()
 export class MessagesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => NotificationsService))
+    private notificationsService: NotificationsService
+  ) {}
 
   async create(createMessageDto: CreateMessageDto) {
     const { content, senderId, chatId } = createMessageDto;
+    const senderIdStr = String(senderId);
+    const chatIdStr = String(chatId);
+
     try {
-      return await this.prisma.message.create({
+      const res = await this.prisma.message.create({
         data: {
           content,
-          senderId: senderId, // Sin llaves, solo el string
-          chatId: chatId, // Sin llaves, solo el string
+          senderId: senderIdStr,
+          chatId: chatIdStr,
         },
         include: {
           sender: {
@@ -28,6 +37,40 @@ export class MessagesService {
           },
         },
       });
+
+      if (res) {
+        try {
+          const recipients = await this.prisma.chatParticipant.findMany({
+            where: {
+              chatId: chatIdStr,
+              userId: { not: senderIdStr },
+            },
+          });
+
+          const preview = content.length > 140 ? `${content.slice(0, 140)}…` : content;
+          const senderLabel = res.sender.name || res.sender.username || 'Alguien';
+
+          for (const { userId } of recipients) {
+            await this.notificationsService.notify({
+              userId,
+              title: NotificationLabels[NotificationType.NEW_MESSAGE],
+              body: `${senderLabel}: ${preview}`,
+              type: NotificationType.NEW_MESSAGE,
+              metadata: {
+                userId: senderIdStr,
+                name: res.sender.name ?? '',
+                username: res.sender.username,
+                initials: res.sender.initials ?? '',
+                chatId: chatIdStr,
+              },
+            }, false);
+          }
+        } catch (notifyError) {
+          console.error('No se pudo enviar la notificación de mensaje:', notifyError);
+        }
+      }
+
+      return res;
     } catch (error) {
       console.error('Error al crear el mensaje:', error);
       throw new InternalServerErrorException('Error al crear el mensaje');

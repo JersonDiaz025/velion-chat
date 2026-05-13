@@ -13,7 +13,7 @@ const Pagination = ({
     if (!canNavigate) return null;
 
     const btnBaseStyles =
-        'flex items-center gap-2 px-4 py-2 bg-surface-container hover:bg-surface-container-high rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed font-medium text-sm border border-outline-variant/10';
+        'flex items-center cursor-pointer gap-2 px-4 py-2 bg-surface-container hover:bg-surface-container-high rounded-xl transition-all disabled:opacity-30 disabled:cursor-not-allowed font-medium text-sm border border-outline-variant/10';
 
     return (
         <div className={`flex items-center justify-center gap-6 ${className}`}>

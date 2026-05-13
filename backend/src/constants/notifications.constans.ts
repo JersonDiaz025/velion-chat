@@ -21,7 +21,7 @@ export const NotificationLabels: Record<NotificationType, string> = {
   [NotificationType.FRIEND_REQUEST]: '¡Nueva solicitud de amistad!',
   [NotificationType.FRIEND_ACCEPTED]: '¡Solicitud aceptada!',
   [NotificationType.REJECTED]: 'Solicitud de amistad rechazada',
-  [NotificationType.NEW_MESSAGE]: '¡Nuevo mensaje de!',
+  [NotificationType.NEW_MESSAGE]: '¡Nuevo mensaje!',
   [NotificationType.CHAT_INVITE]: '!Invitación a chat!',
   [NotificationType.LOGIN_DETECTION]: '¡Alerta de inicio de sesión!',
   [NotificationType.SYSTEM_ANNOUNCEMENT]: '¡Anuncio del sistema!',

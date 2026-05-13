@@ -9,7 +9,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { getAvatarData } from '../utils/avatar-generator';
-import { NOTIFICATION_TYPES, STATUS_FRIENDS_REQ } from '../constants/status-friends-req';
+import { STATUS_FRIENDS_REQ } from '../constants/status-friends-req';
 import { FriendStatus } from '@prisma/client';
 import { mapUserToProfile } from '../utils/user.mapper';
 import { PresenceService } from '../presence/presence.service';
