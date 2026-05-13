@@ -15,8 +15,6 @@ export const useNotificationStore = create<NotificationState>()(
                     unreadCount: state.unreadCount + 1,
                 }));
 
-                // 2. Aquí podrías meter lógica condicional
-                // Ej: Si el usuario está en la página de notificaciones, no mostrar toast
                 if (isNotificationsFocus) {
                     showSmartToast(notification);
                 }

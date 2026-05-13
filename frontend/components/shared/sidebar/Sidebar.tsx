@@ -7,9 +7,13 @@ import Avatar from '@/components/ui/Avatar';
 import { useAuth } from '@/hooks/auth/use-auth';
 import { sidebarLinks } from '@/data/sidebar-links';
 import { ROUTES } from '@/constants/routes.constants';
+import { useNotificationStore } from '@/store/notifications.store';
+import { useChatStore } from '@/store/chat.store';
 
 export default function Sidebar() {
     const { user } = useAuth();
+    // const { unreadMessages } = useChatStore();
+    const { unreadCount } = useNotificationStore();
 
     return (
         <aside className='flex h-full w-fit flex-col items-center bg-black py-6'>
@@ -17,9 +21,17 @@ export default function Sidebar() {
                 <Image src='/favicon.ico' alt='Velion logo' width={40} height={32} priority />
             </Link>
             <nav className='flex flex-1 flex-col gap-8'>
-                {sidebarLinks?.map((item) => (
-                    <SidebarItem key={item.href} {...item} />
-                ))}
+                {sidebarLinks?.map((item) => {
+                    let count: number = 0;
+                    // if (item.href === ROUTES.MESSAGES.ROOT) {
+                    //     count = unreadMessages;
+                    // }
+                    if (item.href === ROUTES.NOTIFICATIONS.ROOT) {
+                        count = unreadCount;
+                    }
+
+                    return <SidebarItem key={item.href} {...item} badgeCount={count} />;
+                })}
             </nav>
             <Link href={ROUTES.PROFILE.ROOT}>
                 <Avatar

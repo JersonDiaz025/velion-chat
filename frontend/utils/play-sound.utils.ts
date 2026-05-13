@@ -3,6 +3,6 @@ import { NotificationType } from '@/constants/types.constants';
 
 export function playNotificationSound(type: NotificationType) {
     const audio = new Audio(AUDIO_MAPPERS[type] ?? '');
-    audio.volume = 0.5;
+    audio.volume = 0.4;
     audio.play();
 }
