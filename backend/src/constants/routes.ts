@@ -5,4 +5,5 @@ export const ROUTES = {
   USERS: 'users',
   CHATS: 'chats',
   PROFILE: 'me',
+  NOTIFICATIONS: 'notifications',
 } as const;

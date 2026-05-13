@@ -21,8 +21,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
             try {
                 const userData = await profileService.getFullProfile();
-                console.log(userData);
-                setUser(userData);
+                setUser(userData || null);
             } catch {
                 setUser(null);
                 await logout();

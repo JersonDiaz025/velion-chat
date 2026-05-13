@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Manrope } from 'next/font/google';
 import './globals.css';
 import AuthProvider from '@/providers/auth.provider';
 import { Suspense } from 'react';
-import { ToastProvider } from '@/components/ui/toast';
+import { Toaster } from 'react-hot-toast';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -47,9 +47,8 @@ export default function RootLayout({
         >
             <body className='min-h-full antialiased'>
                 <Suspense fallback={null}>
-                    <ToastProvider>
-                        <AuthProvider>{children}</AuthProvider>
-                    </ToastProvider>
+                    <Toaster />
+                    <AuthProvider>{children}</AuthProvider>
                 </Suspense>
             </body>
         </html>

@@ -27,5 +27,15 @@ export const getApiServer = async () => {
             const res = await api.post<T>(url, data, config(cfg));
             return res as T;
         },
+
+        patch: async <T>(url: string, data?: unknown, cfg?: AxiosRequestConfig): Promise<T> => {
+            const res = await api.patch<T>(url, data, config(cfg));
+            return res as T;
+        },
+
+        delete: async <T>(url: string, cfg?: AxiosRequestConfig): Promise<T> => {
+            const res = await api.delete<T>(url, config(cfg));
+            return res as T;
+        },
     };
 };

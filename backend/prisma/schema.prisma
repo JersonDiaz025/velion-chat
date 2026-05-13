@@ -29,6 +29,8 @@ model User {
 
   messages Message[]
   chats    ChatParticipant[]
+  fcmToken      String?
+  notifications Notification[]
 }
 
 model Friend {
@@ -48,6 +50,7 @@ enum FriendStatus {
   PENDING
   ACCEPTED
   BLOCKED
+  REJECTED
 }
 
 model Chat {
@@ -81,4 +84,17 @@ model Message {
 
   sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
   chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   // Destinatario
+  title     String
+  body      String
+  type      String   // 'FRIEND_REQUEST', 'NEW_MESSAGE', 'SYSTEM'
+  read      Boolean  @default(false)
+  metadata  Json?    // Para guardar IDs de chats o de usuarios
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
 }

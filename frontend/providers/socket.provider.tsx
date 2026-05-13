@@ -7,6 +7,8 @@ import { usePathname } from 'next/navigation';
 import { StatusProps } from '@/types/providers.types';
 import { ROUTES } from '@/constants/routes.constants';
 import { MessageProps } from '@/types/msg.types';
+import { NotificationProps } from '@/types/notifications.types';
+import { useNotificationStore } from '@/store/notifications.store';
 
 const SocketContext = createContext<Socket | null>(null);
 
@@ -18,9 +20,10 @@ export const SocketProvider = ({
     token: string | undefined;
 }) => {
     const pathname = usePathname();
-    const { setOnline, setOffline, incrementUnread } = useChatStore();
-    const [socket, setSocket] = useState<Socket | null>(null);
     const socketRef = useRef<Socket | null>(null);
+    const { receiveNewNotification } = useNotificationStore();
+    const [socket, setSocket] = useState<Socket | null>(null);
+    const { setOnline, setOffline, incrementUnread } = useChatStore();
 
     // 1. Manejo de conexión/desconexión (Persistencia del Singleton)
     useEffect(() => {
@@ -55,6 +58,17 @@ export const SocketProvider = ({
             status === 'online' ? setOnline(userId, name) : setOffline(userId);
         };
 
+        const handleNotification = (notification: NotificationProps) => {
+            const currentPath = pathname.replace(/\/$/, '');
+            const isNotificationsFocus = currentPath !== ROUTES.NOTIFICATIONS.ROOT;
+            // console.log('Notificación recibida:', notification);
+
+            receiveNewNotification(notification, isNotificationsFocus);
+            // Opcional: Sonido de notificación
+            // const audio = new Audio('/sounds/notification.mp3');
+            // audio.play().catch(() => {});
+        };
+
         const handleGlobalMessage = (message: MessageProps) => {
             const chatId = message?.chatId ?? 0;
             const currentPath = pathname.replace(/\/$/, '');
@@ -70,19 +84,21 @@ export const SocketProvider = ({
 
                 incrementUnread(chatId);
 
-                // 4. Opcional: Notificación visual nativa si el usuario dio permiso
-                if (Notification.permission === 'granted') {
-                    new Notification('Nuevo mensaje', { body: message.content });
-                }
+                // // 4. Opcional: Notificación visual nativa si el usuario dio permiso
+                // if (Notification.permission === 'granted') {
+                //     new Notification('Nuevo mensaje', { body: message.content });
+                // }
             }
         };
 
         s.on('userStatusChanged', handleStatus);
         s.on('newMessage', handleGlobalMessage);
+        s.on('notification', handleNotification);
 
         return () => {
             s.off('userStatusChanged', handleStatus);
             s.off('newMessage', handleGlobalMessage);
+            s.off('notification', handleNotification);
         };
     }, [pathname, setOnline, setOffline, incrementUnread]);
 

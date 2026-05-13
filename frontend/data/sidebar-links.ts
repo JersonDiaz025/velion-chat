@@ -25,7 +25,7 @@ export const sidebarLinks = [
     },
     {
         label: 'Notificationes',
-        href: ROUTES.NOTIFICATIONS,
+        href: ROUTES.NOTIFICATIONS.ROOT,
         icon: Bell,
     },
 ];

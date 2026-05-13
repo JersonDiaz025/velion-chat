@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './chat/chat.module';
 import { PrismaService } from './prisma/prisma.service';
 import { PresenceModule } from './presence/presence.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PresenceModule } from './presence/presence.module';
     MessagesModule,
     AuthModule,
     ChatModule,
+    NotificationsModule,
   ],
   providers: [PrismaService],
 })

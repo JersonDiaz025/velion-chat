@@ -28,7 +28,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly chatService: ChatService,
     private readonly jwtService: JwtService,
     private readonly presenceService: PresenceService,
-    private readonly messagesService: MessagesService,
+    private readonly messagesService: MessagesService
   ) {}
 
   // --- CONEXIÓN ---
@@ -67,6 +67,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: any) {
     if (client.user) {
+      console.log('desconectado', client.user);
       this.presenceService.setOffline(client.user.sub);
       this.server.emit('userStatusChanged', {
         name: client.user.name,
@@ -132,7 +133,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('typing')
   async handleTyping(
     @MessageBody() data: { chatId: string; isTyping: boolean },
-    @ConnectedSocket() client: any,
+    @ConnectedSocket() client: any
   ) {
     const participants = await this.chatService.findParticipantsByChatId(data.chatId);
 
@@ -158,7 +159,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('leaveRoom')
-  async handleLeaveRoom(@MessageBody() data: { chatId: string }, @ConnectedSocket() client: Socket) {
+  async handleLeaveRoom(
+    @MessageBody() data: { chatId: string },
+    @ConnectedSocket() client: Socket
+  ) {
     client.leave(`chat_${data.chatId}`);
     return { event: 'left', room: `chat_${data.chatId}` };
   }
